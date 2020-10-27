@@ -1,0 +1,16 @@
+#@data/values
+---
+namespace:
+
+pod_webhook_image:
+setup_ca_certs_image:
+
+image_pull_secrets: []
+
+ca_cert_data:
+labels: []
+annotations: []
+
+http_proxy:
+https_proxy:
+no_proxy:

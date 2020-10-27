@@ -1,0 +1,85 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: cert-injection-webhook-role
+  namespace: #@ data.values.namespace
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  resourceNames:
+  - webhook-server-tls
+  verbs:
+  - update
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: cert-injection-webhook-role-binding
+  namespace: #@ data.values.namespace
+  annotations:
+    kapp.k14s.io/update-strategy: fallback-on-replace
+subjects:
+- kind: ServiceAccount
+  name: cert-injection-webhook-sa
+  namespace: #@ data.values.namespace
+roleRef:
+  kind: Role
+  name: cert-injection-webhook-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cert-injection-webhook-cluster-role
+rules:
+- apiGroups:
+  - admissionregistration.k8s.io
+  resources:
+  - mutatingwebhookconfigurations
+  resourceNames:
+  - defaults.webhook.cert-injection.tanzu.vmware.com
+  verbs:
+  - update
+- apiGroups:
+  - admissionregistration.k8s.io
+  resources:
+  - mutatingwebhookconfigurations
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cert-injection-webhook-cluster-role-binding
+  annotations:
+    kapp.k14s.io/update-strategy: fallback-on-replace
+subjects:
+- kind: ServiceAccount
+  name: cert-injection-webhook-sa
+  namespace: #@ data.values.namespace
+roleRef:
+  kind: ClusterRole
+  name: cert-injection-webhook-cluster-role
+  apiGroup: rbac.authorization.k8s.io
