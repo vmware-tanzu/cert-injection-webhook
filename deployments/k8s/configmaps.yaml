@@ -1,0 +1,35 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:base64", "base64")
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name:  ca-cert
+  namespace: cert-injection-webhook
+data:
+  ca.crt: #@ base64.encode(data.values.ca_cert_data) if data.values.ca_cert_data else ""
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name:  http-proxy
+  namespace: cert-injection-webhook
+data:
+  value: #@ data.values.http_proxy if data.values.http_proxy else ""
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name:  https-proxy
+  namespace: cert-injection-webhook
+data:
+  value: #@ data.values.https_proxy if data.values.https_proxy else ""
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name:  no-proxy
+  namespace: cert-injection-webhook
+data:
+  value: #@ data.values.no_proxy if data.values.no_proxy else ""
+---
