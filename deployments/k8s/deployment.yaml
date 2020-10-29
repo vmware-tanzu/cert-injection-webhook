@@ -44,7 +44,7 @@ spec:
               readOnly: true
           ports:
             - containerPort: 8443
-              name: cert-injection-webhook-port
+              name: webhook-port
           env:
             - name: HTTP_PROXY
               valueFrom:
@@ -82,7 +82,7 @@ spec:
     app: cert-injection-webhook
   ports:
     - port: 443
-      targetPort: cert-injection-webhook-port
+      targetPort: webhook-port
 ---
 apiVersion: admissionregistration.k8s.io/v1beta1
 kind: MutatingWebhookConfiguration
