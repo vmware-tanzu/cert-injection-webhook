@@ -62,7 +62,7 @@ func main() {
 	}
 
 	ctx := webhook.WithOptions(signals.NewContext(), webhook.Options{
-		ServiceName: "webhook-server",
+		ServiceName: "cert-injection-webhook",
 		Port:        8443,
 		SecretName:  webhookSecretName,
 	})
