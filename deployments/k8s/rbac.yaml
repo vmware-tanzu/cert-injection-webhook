@@ -18,7 +18,7 @@ rules:
   resources:
   - secrets
   resourceNames:
-  - webhook-server-tls
+  - cert-injection-webhook-tls
   verbs:
   - update
 - apiGroups:
