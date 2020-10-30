@@ -2,6 +2,14 @@
 #@ load("@ytt:assert", "assert")
 ---
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name:  setup-ca-certs-image
+  namespace: cert-injection-webhook
+data:
+  image: #@ data.values.setup_ca_certs_image or assert.fail("missing setup_ca_certs_image")
+---
+apiVersion: v1
 kind: Secret
 metadata:
   name:  cert-injection-webhook-tls
@@ -62,7 +70,10 @@ spec:
                   name: no-proxy
                   key: value
             - name: SETUP_CA_CERTS_IMAGE
-              value: #@ data.values.setup_ca_certs_image or assert.fail("missing setup_ca_certs_image")
+              valueFrom:
+                configMapKeyRef:
+                  name: setup-ca-certs-image
+                  key: image
             - name: SYSTEM_NAMESPACE
               valueFrom:
                 fieldRef:
