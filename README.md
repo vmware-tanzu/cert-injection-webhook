@@ -31,7 +31,7 @@ $ ytt -f ./deployments/k8s \
       -v setup_ca_certs_image=<setup-ca-certs-image> \
       --data-value-file ca_cert_data=<ca.crt> \
       --data-value-yaml labels="[label-1, label-2]" \
-      --data-value-yaml annotaions="[annotation-1, annotation-2]" \
+      --data-value-yaml annotations="[annotation-1, annotation-2]" \
       > manifest.yaml
 $ kapp deploy -a cert-injection-webhook -f ./manifest.yaml
 ```
