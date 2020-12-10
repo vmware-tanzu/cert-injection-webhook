@@ -38,8 +38,6 @@ spec:
           image: #@ data.values.pod_webhook_image or assert.fail("missing pod_webhook_image")
           imagePullPolicy: Always
           args:
-            - --
-            - pod-webhook
             #@ for label in data.values.labels:
             - #@ "-label={}".format(label)
             #@ end
