@@ -19,8 +19,8 @@ The Cert Injection Webhook for Kubernetes is deployed using the [Carvel](hhttps:
 Build the pod-webhook and setup-ca-certs images using the [pack](https://github.com/buildpacks/pack) CLI.
 
 ```bash
-$ pack build <pod-webhook-image> -e BP_GO_TARGETS="./cmd/pod-webhook" --publish
-$ pack build <setup-ca-certs-image> -e BP_GO_TARGETS="./cmd/setup-ca-certs" --publish
+$ pack build <pod-webhook-image> -e BP_GO_TARGETS="./cmd/pod-webhook" --publish --builder paketobuildpacks/builder:base
+$ pack build <setup-ca-certs-image> -e BP_GO_TARGETS="./cmd/setup-ca-certs" --publish --builder paketobuildpacks/builder:base
 ```
 
 Use the Carvel tools to install to your cluster.
