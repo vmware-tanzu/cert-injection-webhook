@@ -112,6 +112,10 @@ func (ac *admissionController) Admit(ctx context.Context, request *admissionv1.A
 			Allowed: true,
 		}
 	}
+	
+	if pod.Spec.NodeSelector["kubernetes.io/os"] == "windows"{
+		return &admissionv1.AdmissionResponse{Allowed: true}
+	}
 
 	if !(intersect(ac.labels, pod.Labels) || intersect(ac.annotations, pod.Annotations)) {
 		logger.Info("does not contain matching labels or annotations, letting it through")
