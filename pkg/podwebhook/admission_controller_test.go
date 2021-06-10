@@ -547,6 +547,49 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
 			assert.ElementsMatch(t, expectedPatch, actualPatch)
 		})
 
+		it("does not inject ca certs on windows pods", func() {
+			testPod.Labels = map[string]string{
+				label: "some value",
+			}
+			selectorMap := map[string]string{"kubernetes.io/os": "windows"}
+
+			testPod.Spec.NodeSelector = selectorMap
+
+			bytes, err := json.Marshal(testPod)
+			require.NoError(t, err)
+
+			admissionRequest := &admissionv1.AdmissionRequest{
+				Name: "testAdmissionRequest",
+				Object: runtime.RawExtension{
+					Raw: bytes,
+				},
+				Operation: admissionv1.Create,
+				Resource:  metav1.GroupVersionResource{Version: "v1", Resource: "pods"},
+			}
+
+			ac, err := podwebhook.NewAdmissionController(
+				name,
+				path,
+				func(ctx context.Context) context.Context { return ctx },
+				[]string{label},
+				[]string{},
+				[]corev1.EnvVar{},
+				setupCACertsImage,
+				caCertsData,
+				corev1.LocalObjectReference{},
+			)
+			require.NoError(t, err)
+
+			response := ac.Admit(ctx, admissionRequest)
+			wtesting.ExpectAllowed(t, response)
+
+			require.Nil(t, response.Patch)
+			require.NoError(t, err)
+
+			require.Equal(t, true, response.Allowed)
+
+		})
+
 		it("sets the ca certs on all containers on the pods that are annotated", func() {
 			testPod.Annotations = map[string]string{
 				annotation: "some value",
@@ -1307,25 +1350,5 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
 
 		require.Equal(t, ac.Path(), path)
 	})
-}
 
-func comparePatches(t *testing.T, expectedPatches []jsonpatch.Operation, actualBytes []byte) {
-	t.Helper()
-
-	var actualPatches []jsonpatch.Operation
-	require.NoError(t, json.Unmarshal(actualBytes, &actualPatches))
-
-	require.Equal(t, len(expectedPatches), len(actualPatches))
-
-	em := map[string]interface{}{}
-	for _, p := range expectedPatches {
-		em[p.Json()] = nil
-	}
-
-	am := map[string]interface{}{}
-	for _, p := range actualPatches {
-		am[p.Json()] = nil
-	}
-
-	require.Equal(t, em, am)
 }

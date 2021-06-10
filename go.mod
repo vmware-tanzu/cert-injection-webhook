@@ -4,7 +4,6 @@ go 1.14
 
 require (
 	github.com/evanphx/json-patch v4.5.0+incompatible
-	github.com/google/go-cmp v0.5.1
 	github.com/pivotal/kpack v0.1.2
 	github.com/pkg/errors v0.9.1
 	github.com/sclevine/spec v1.4.0
