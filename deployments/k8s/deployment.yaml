@@ -93,21 +93,29 @@ spec:
     - port: 443
       targetPort: webhook-port
 ---
-apiVersion: admissionregistration.k8s.io/v1beta1
+apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
   name: defaults.webhook.cert-injection.tanzu.vmware.com
 webhooks:
   - name: defaults.webhook.cert-injection.tanzu.vmware.com
+    admissionReviewVersions:
+      - v1
+      - v1beta1
     clientConfig:
       service:
         name: cert-injection-webhook
         namespace: cert-injection-webhook
+    failurePolicy: Ignore
+    matchPolicy: Exact
     rules:
       - operations: ["CREATE", "UPDATE"]
         apiGroups: [""]
         apiVersions: ["v1"]
         resources: ["pods"]
+    sideEffects: None
+    timeoutSeconds: 30
+
 ---
 apiVersion: v1
 kind: ServiceAccount
