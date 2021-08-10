@@ -101,7 +101,6 @@ webhooks:
   - name: defaults.webhook.cert-injection.tanzu.vmware.com
     admissionReviewVersions:
       - v1
-      - v1beta1
     clientConfig:
       service:
         name: cert-injection-webhook
@@ -114,7 +113,6 @@ webhooks:
         apiVersions: ["v1"]
         resources: ["pods"]
     sideEffects: None
-    timeoutSeconds: 30
 
 ---
 apiVersion: v1
