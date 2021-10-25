@@ -105,6 +105,8 @@ webhooks:
       service:
         name: cert-injection-webhook
         namespace: cert-injection-webhook
+        path: /podwebhook
+        port: 443
     failurePolicy: Ignore
     matchPolicy: Exact
     rules:
