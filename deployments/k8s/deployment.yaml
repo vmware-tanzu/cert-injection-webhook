@@ -67,6 +67,21 @@ spec:
                 configMapKeyRef:
                   name: no-proxy
                   key: value
+            - name: http_proxy
+              valueFrom:
+                configMapKeyRef:
+                  name: http-proxy
+                  key: value
+            - name: https_proxy
+              valueFrom:
+                configMapKeyRef:
+                  name: https-proxy
+                  key: value
+            - name: no_proxy
+              valueFrom:
+                configMapKeyRef:
+                  name: no-proxy
+                  key: value
             - name: SETUP_CA_CERTS_IMAGE
               valueFrom:
                 configMapKeyRef:

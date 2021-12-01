@@ -82,6 +82,9 @@ func PodAdmissionController(ctx context.Context, cmw configmap.Watcher) *control
 	envVars.AddEnvIfPresent("HTTP_PROXY")
 	envVars.AddEnvIfPresent("HTTPS_PROXY")
 	envVars.AddEnvIfPresent("NO_PROXY")
+	envVars.AddEnvIfPresent("http_proxy")
+	envVars.AddEnvIfPresent("https_proxy")
+	envVars.AddEnvIfPresent("no_proxy")
 
 	caCertsData := ""
 	info, err := os.Stat(caCertsFile)
