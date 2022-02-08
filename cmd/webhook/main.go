@@ -15,12 +15,13 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"knative.dev/pkg/configmap"
 	"knative.dev/pkg/controller"
+	"knative.dev/pkg/injection"
 	"knative.dev/pkg/injection/sharedmain"
 	"knative.dev/pkg/signals"
 	"knative.dev/pkg/webhook"
 	"knative.dev/pkg/webhook/certificates"
 
-	"github.com/pivotal/cert-injection-webhook/pkg/podwebhook"
+	"github.com/pivotal/cert-injection-webhook/pkg/certinjectionwebhook"
 )
 
 const (
@@ -71,7 +72,7 @@ func main() {
 	})
 
 	sharedmain.WebhookMainWithConfig(ctx, "webhook",
-		sharedmain.ParseAndGetConfigOrDie(),
+		injection.ParseAndGetRESTConfigOrDie(),
 		certificates.NewController,
 		PodAdmissionController,
 	)
@@ -118,7 +119,7 @@ func PodAdmissionController(ctx context.Context, cmw configmap.Watcher) *control
 		imagePullSecrets = corev1.LocalObjectReference{Name: systemRegistrySecret}
 	}
 
-	c, err := podwebhook.NewController(
+	c, err := certinjectionwebhook.NewController(
 		ctx,
 		webhookName,
 		webhookPath,

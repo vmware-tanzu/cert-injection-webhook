@@ -35,15 +35,8 @@ spec:
       serviceAccountName: cert-injection-webhook-sa
       containers:
         - name: server
-          image: #@ data.values.pod_webhook_image or assert.fail("missing pod_webhook_image")
+          image: #@ data.values.webhook_image or assert.fail("missing webhook_image")
           imagePullPolicy: Always
-          args:
-            #@ for label in data.values.labels:
-            - #@ "-label={}".format(label)
-            #@ end
-            #@ for annotation in data.values.annotations:
-            - #@ "-annotation={}".format(annotation)
-            #@ end
           volumeMounts:
             - name: webhook-ca-cert
               mountPath: /run/config_maps/ca_cert

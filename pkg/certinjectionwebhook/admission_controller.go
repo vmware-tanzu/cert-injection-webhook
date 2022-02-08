@@ -1,7 +1,7 @@
 // Copyright 2020-Present VMware, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-package podwebhook
+package certinjectionwebhook
 
 import (
 	"bytes"
@@ -112,8 +112,8 @@ func (ac *admissionController) Admit(ctx context.Context, request *admissionv1.A
 			Allowed: true,
 		}
 	}
-	
-	if pod.Spec.NodeSelector["kubernetes.io/os"] == "windows"{
+
+	if pod.Spec.NodeSelector["kubernetes.io/os"] == "windows" {
 		return &admissionv1.AdmissionResponse{Allowed: true}
 	}
 
