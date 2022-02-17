@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/base64"
 	"flag"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -21,25 +22,18 @@ import (
 	"knative.dev/pkg/webhook"
 	"knative.dev/pkg/webhook/certificates"
 
-	"github.com/pivotal/cert-injection-webhook/pkg/certinjectionwebhook"
+	"github.com/vmware-tanzu/cert-injection-webhook/pkg/certinjectionwebhook"
 )
 
 const (
 	defaultWebhookName       = "defaults.webhook.cert-injection.tanzu.vmware.com"
-	webhookPath              = "/podwebhook"
+	webhookPath              = "/certinjectionwebhook"
 	defaultWebhookSecretName = "cert-injection-webhook-tls"
 	caCertsFile              = "/run/config_maps/ca_cert/ca.crt"
+	httpProxyFile            = "/run/config_maps/http_proxy/value"
+	httpsProxyFile           = "/run/config_maps/https_proxy/value"
+	noProxyFile              = "/run/config_maps/no_proxy/value"
 )
-
-type EnvVars []corev1.EnvVar
-
-func (e *EnvVars) AddEnvIfPresent(env string) {
-	val := os.Getenv(env)
-	if val == "" {
-		return
-	}
-	*e = append(*e, corev1.EnvVar{Name: env, Value: val})
-}
 
 type labelAnnotationFlags []string
 
@@ -65,11 +59,11 @@ func main() {
 		webhookSecretName = defaultWebhookSecretName
 	}
 
-	ctx := webhook.WithOptions(signals.NewContext(), webhook.Options{
+	ctx := sharedmain.WithHADisabled(webhook.WithOptions(signals.NewContext(), webhook.Options{
 		ServiceName: "cert-injection-webhook",
 		Port:        8443,
 		SecretName:  webhookSecretName,
-	})
+	}))
 
 	sharedmain.WebhookMainWithConfig(ctx, "webhook",
 		injection.ParseAndGetRESTConfigOrDie(),
@@ -79,43 +73,23 @@ func main() {
 }
 
 func PodAdmissionController(ctx context.Context, cmw configmap.Watcher) *controller.Impl {
-	envVars := EnvVars{}
-	envVars.AddEnvIfPresent("HTTP_PROXY")
-	envVars.AddEnvIfPresent("HTTPS_PROXY")
-	envVars.AddEnvIfPresent("NO_PROXY")
-
-	caCertsData := ""
-	info, err := os.Stat(caCertsFile)
+	envVars, err := loadEnvVars()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if info.Size() > 0 {
-		file, err := os.Open(caCertsFile)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer file.Close()
-
-		buf, err := ioutil.ReadAll(base64.NewDecoder(base64.StdEncoding, file))
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		caCertsData = string(buf)
+	caCertsData, err := readFile(caCertsFile, readBase64)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	webhookName := os.Getenv("WEBHOOK_NAME")
-
 	if webhookName == "" {
 		webhookName = defaultWebhookName
 	}
 
-	systemRegistrySecret := os.Getenv("SYSTEM_REGISTRY_SECRET")
-
 	var imagePullSecrets corev1.LocalObjectReference
-
-	if systemRegistrySecret != "" {
+	if systemRegistrySecret := os.Getenv("SYSTEM_REGISTRY_SECRET"); systemRegistrySecret != "" {
 		imagePullSecrets = corev1.LocalObjectReference{Name: systemRegistrySecret}
 	}
 
@@ -137,4 +111,74 @@ func PodAdmissionController(ctx context.Context, cmw configmap.Watcher) *control
 		log.Fatal(err)
 	}
 	return c
+}
+
+func loadEnvVars() ([]corev1.EnvVar, error) {
+	var envVars []corev1.EnvVar
+
+	httpProxy, err := readFile(httpProxyFile, read)
+	if err != nil {
+		return nil, err
+	}
+	if httpProxy != "" {
+		envVars = append(envVars, corev1.EnvVar{Name: "HTTP_PROXY", Value: httpProxy})
+		envVars = append(envVars, corev1.EnvVar{Name: "http_proxy", Value: httpProxy})
+	}
+
+	httpsProxy, err := readFile(httpsProxyFile, read)
+	if err != nil {
+		return nil, err
+	}
+	if httpsProxy != "" {
+		envVars = append(envVars, corev1.EnvVar{Name: "HTTPS_PROXY", Value: httpsProxy})
+		envVars = append(envVars, corev1.EnvVar{Name: "https_proxy", Value: httpsProxy})
+	}
+
+	noProxy, err := readFile(noProxyFile, read)
+	if err != nil {
+		return nil, err
+	}
+	if noProxy != "" {
+		envVars = append(envVars, corev1.EnvVar{Name: "NO_PROXY", Value: noProxy})
+		envVars = append(envVars, corev1.EnvVar{Name: "no_proxy", Value: noProxy})
+	}
+
+	return envVars, nil
+}
+
+func readFile(filepath string, read func(reader io.Reader) (string, error)) (string, error) {
+	info, err := os.Stat(filepath)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if info.Size() == 0 {
+		return "", nil
+	}
+
+	file, err := os.Open(filepath)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	return read(file)
+}
+
+func readBase64(reader io.Reader) (string, error) {
+	buf, err := ioutil.ReadAll(base64.NewDecoder(base64.StdEncoding, reader))
+	if err != nil {
+		return "", err
+	}
+
+	return string(buf), nil
+}
+
+func read(reader io.Reader) (string, error) {
+	buf, err := ioutil.ReadAll(reader)
+	if err != nil {
+		return "", err
+	}
+
+	return string(buf), nil
 }

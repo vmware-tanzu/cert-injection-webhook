@@ -66,7 +66,7 @@ func NewController(
 	wh := Webhook{r, ac}
 
 	logger := logging.FromContext(ctx)
-	c := controller.NewImpl(wh, logger, "PodWebhook")
+	c := controller.NewImplFull(wh, controller.ControllerOptions{Logger: logger, WorkQueueName: "CertInjectionWebhook"})
 
 	mwhInformer.Informer().AddEventHandler(cache.FilteringResourceEventHandler{
 		FilterFunc: controller.FilterWithName(name),

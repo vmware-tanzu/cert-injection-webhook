@@ -41,25 +41,19 @@ spec:
             - name: webhook-ca-cert
               mountPath: /run/config_maps/ca_cert
               readOnly: true
+            - name: http-proxy
+              mountPath: /run/config_maps/http_proxy
+              readOnly: true
+            - name: https-proxy
+              mountPath: /run/config_maps/https_proxy
+              readOnly: true
+            - name: no-proxy
+              mountPath: /run/config_maps/no_proxy
+              readOnly: true
           ports:
             - containerPort: 8443
               name: webhook-port
           env:
-            - name: HTTP_PROXY
-              valueFrom:
-                configMapKeyRef:
-                  name: http-proxy
-                  key: value
-            - name: HTTPS_PROXY
-              valueFrom:
-                configMapKeyRef:
-                  name: https-proxy
-                  key: value
-            - name: NO_PROXY
-              valueFrom:
-                configMapKeyRef:
-                  name: no-proxy
-                  key: value
             - name: SETUP_CA_CERTS_IMAGE
               valueFrom:
                 configMapKeyRef:
@@ -73,6 +67,15 @@ spec:
         - name: webhook-ca-cert
           configMap:
             name: ca-cert
+        - name: http-proxy
+          configMap:
+            name: http-proxy
+        - name: https-proxy
+          configMap:
+            name: https-proxy
+        - name: no-proxy
+          configMap:
+            name: no-proxy
 ---
 apiVersion: v1
 kind: Service
@@ -98,7 +101,7 @@ webhooks:
       service:
         name: cert-injection-webhook
         namespace: cert-injection-webhook
-        path: /podwebhook
+        path: /certinjectionwebhook
         port: 443
     failurePolicy: Ignore
     matchPolicy: Exact

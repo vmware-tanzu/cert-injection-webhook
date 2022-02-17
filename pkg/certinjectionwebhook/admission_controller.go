@@ -28,9 +28,8 @@ const (
 )
 
 var (
-	errMissingNewObject       = errors.New("the new object may not be nil")
-	podResource               = metav1.GroupVersionResource{Version: "v1", Resource: "pods"}
-	root                int64 = 0
+	errMissingNewObject = errors.New("the new object may not be nil")
+	podResource         = metav1.GroupVersionResource{Version: "v1", Resource: "pods"}
 )
 
 // Implements webhook.AdmissionController
@@ -269,7 +268,7 @@ var universalDeserializer = serializer.NewCodecFactory(runtime.NewScheme()).Univ
 
 func intersect(a []string, b map[string]string) bool {
 	for _, k := range a {
-		if v, ok := b[k]; ok && v != "" {
+		if _, ok := b[k]; ok {
 			return true
 		}
 	}

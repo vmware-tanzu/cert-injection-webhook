@@ -32,4 +32,3 @@ metadata:
   namespace: cert-injection-webhook
 data:
   value: #@ data.values.no_proxy if data.values.no_proxy else ""
----

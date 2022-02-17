@@ -21,7 +21,7 @@ import (
 	certresources "knative.dev/pkg/webhook/certificates/resources"
 	wtesting "knative.dev/pkg/webhook/testing"
 
-	"github.com/pivotal/cert-injection-webhook/pkg/certinjectionwebhook"
+	"github.com/vmware-tanzu/cert-injection-webhook/pkg/certinjectionwebhook"
 )
 
 func TestReconciler(t *testing.T) {

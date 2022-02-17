@@ -19,7 +19,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	wtesting "knative.dev/pkg/webhook/testing"
 
-	"github.com/pivotal/cert-injection-webhook/pkg/certinjectionwebhook"
+	"github.com/vmware-tanzu/cert-injection-webhook/pkg/certinjectionwebhook"
 )
 
 func TestPodAdmissionController(t *testing.T) {
