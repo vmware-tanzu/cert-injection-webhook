@@ -21,8 +21,6 @@ The following table shows the providers this package can work with.
 The following configuration values can be set to customize the cert-injection-webhook
 installation.
 
-### kpack Configuration
-
 | Value          | Required/Optional                        | Description                                                                                                   |
 |----------------|------------------------------------------|---------------------------------------------------------------------------------------------------------------|
 | `ca_cert_data` | Optional                                 | CA cert data to inject into pod trust store                                                                   |
