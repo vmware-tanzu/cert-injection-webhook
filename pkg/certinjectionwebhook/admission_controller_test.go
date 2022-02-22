@@ -1,7 +1,7 @@
 // Copyright 2020-Present VMware, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-package podwebhook_test
+package certinjectionwebhook_test
 
 import (
 	"context"
@@ -19,7 +19,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	wtesting "knative.dev/pkg/webhook/testing"
 
-	"github.com/pivotal/cert-injection-webhook/pkg/podwebhook"
+	"github.com/vmware-tanzu/cert-injection-webhook/pkg/certinjectionwebhook"
 )
 
 func TestPodAdmissionController(t *testing.T) {
@@ -34,7 +34,7 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
 
 	when("#NewAdmissionController", func() {
 		it("returns an error if there is not at least one label or annotation", func() {
-			_, err := podwebhook.NewAdmissionController(
+			_, err := certinjectionwebhook.NewAdmissionController(
 				"",
 				"",
 				nil,
@@ -47,7 +47,7 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
 			)
 			require.Errorf(t, err, "at least one label or annotation required")
 
-			_, err = podwebhook.NewAdmissionController(
+			_, err = certinjectionwebhook.NewAdmissionController(
 				"",
 				"",
 				nil,
@@ -60,7 +60,7 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
 			)
 			require.NoError(t, err)
 
-			_, err = podwebhook.NewAdmissionController(
+			_, err = certinjectionwebhook.NewAdmissionController(
 				"",
 				"",
 				nil,
@@ -140,7 +140,7 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
 		ctx := context.TODO()
 
 		it("sets the env vars on all containers on the pods that are labelled", func() {
-			ac, err := podwebhook.NewAdmissionController(
+			ac, err := certinjectionwebhook.NewAdmissionController(
 				name,
 				path,
 				func(ctx context.Context) context.Context { return ctx },
@@ -280,7 +280,7 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
 				Resource:  metav1.GroupVersionResource{Version: "v1", Resource: "pods"},
 			}
 
-			ac, err := podwebhook.NewAdmissionController(
+			ac, err := certinjectionwebhook.NewAdmissionController(
 				name,
 				path,
 				func(ctx context.Context) context.Context { return ctx },
@@ -404,7 +404,7 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
 				Resource:  metav1.GroupVersionResource{Version: "v1", Resource: "pods"},
 			}
 
-			ac, err := podwebhook.NewAdmissionController(
+			ac, err := certinjectionwebhook.NewAdmissionController(
 				name,
 				path,
 				func(ctx context.Context) context.Context { return ctx },
@@ -567,7 +567,7 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
 				Resource:  metav1.GroupVersionResource{Version: "v1", Resource: "pods"},
 			}
 
-			ac, err := podwebhook.NewAdmissionController(
+			ac, err := certinjectionwebhook.NewAdmissionController(
 				name,
 				path,
 				func(ctx context.Context) context.Context { return ctx },
@@ -607,7 +607,7 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
 				Resource:  metav1.GroupVersionResource{Version: "v1", Resource: "pods"},
 			}
 
-			ac, err := podwebhook.NewAdmissionController(
+			ac, err := certinjectionwebhook.NewAdmissionController(
 				name,
 				path,
 				func(ctx context.Context) context.Context { return ctx },
@@ -769,7 +769,7 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
 				Resource:  metav1.GroupVersionResource{Version: "v1", Resource: "pods"},
 			}
 
-			ac, err := podwebhook.NewAdmissionController(
+			ac, err := certinjectionwebhook.NewAdmissionController(
 				name,
 				path,
 				func(ctx context.Context) context.Context { return ctx },
@@ -981,7 +981,7 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
 				Resource:  metav1.GroupVersionResource{Version: "v1", Resource: "pods"},
 			}
 
-			ac, err := podwebhook.NewAdmissionController(
+			ac, err := certinjectionwebhook.NewAdmissionController(
 				name,
 				path,
 				func(ctx context.Context) context.Context { return ctx },
@@ -1193,7 +1193,7 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
 				Resource:  metav1.GroupVersionResource{Version: "v1", Resource: "containers"},
 			}
 
-			ac, err := podwebhook.NewAdmissionController(
+			ac, err := certinjectionwebhook.NewAdmissionController(
 				name,
 				path,
 				func(ctx context.Context) context.Context { return ctx },
@@ -1227,7 +1227,7 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
 				Resource:  metav1.GroupVersionResource{Version: "v1", Resource: "pods"},
 			}
 
-			ac, err := podwebhook.NewAdmissionController(
+			ac, err := certinjectionwebhook.NewAdmissionController(
 				name,
 				path,
 				func(ctx context.Context) context.Context { return ctx },
@@ -1262,7 +1262,7 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
 				Resource:  metav1.GroupVersionResource{Version: "v1", Resource: "pods"},
 			}
 
-			ac, err := podwebhook.NewAdmissionController(
+			ac, err := certinjectionwebhook.NewAdmissionController(
 				name,
 				path,
 				func(ctx context.Context) context.Context { return ctx },
@@ -1312,7 +1312,7 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
 				Resource:  metav1.GroupVersionResource{Version: "v1", Resource: "pods"},
 			}
 
-			ac, err := podwebhook.NewAdmissionController(
+			ac, err := certinjectionwebhook.NewAdmissionController(
 				name,
 				path,
 				func(ctx context.Context) context.Context { return ctx },
@@ -1345,7 +1345,7 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
 	})
 
 	it("#Path returns path", func() {
-		ac, err := podwebhook.NewAdmissionController(name, path, nil, []string{"label"}, nil, nil, "", "", corev1.LocalObjectReference{})
+		ac, err := certinjectionwebhook.NewAdmissionController(name, path, nil, []string{"label"}, nil, nil, "", "", corev1.LocalObjectReference{})
 		require.NoError(t, err)
 
 		require.Equal(t, ac.Path(), path)

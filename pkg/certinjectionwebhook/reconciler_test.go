@@ -1,7 +1,7 @@
 // Copyright 2020-Present VMware, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-package podwebhook_test
+package certinjectionwebhook_test
 
 import (
 	"testing"
@@ -21,7 +21,7 @@ import (
 	certresources "knative.dev/pkg/webhook/certificates/resources"
 	wtesting "knative.dev/pkg/webhook/testing"
 
-	"github.com/pivotal/cert-injection-webhook/pkg/podwebhook"
+	"github.com/vmware-tanzu/cert-injection-webhook/pkg/certinjectionwebhook"
 )
 
 func TestReconciler(t *testing.T) {
@@ -51,7 +51,7 @@ func testReconciler(t *testing.T, when spec.G, it spec.S) {
 				actionRecorderList := rtesting.ActionRecorderList{k8sfakeClient}
 				eventList := rtesting.EventList{Recorder: eventRecorder}
 
-				r := podwebhook.NewReconciler(
+				r := certinjectionwebhook.NewReconciler(
 					name,
 					path,
 					k8sfakeClient,

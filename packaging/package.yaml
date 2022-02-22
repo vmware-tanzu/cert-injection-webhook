@@ -1,0 +1,54 @@
+#! Copyright 2021 VMware, Inc.
+#! SPDX-License-Identifier: Apache-2.0
+
+#@ load("@ytt:data", "data")
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: #@ "cert-injection-webhook.community.tanzu.vmware.com." + data.values.version
+spec:
+  refName: cert-injection-webhook.community.tanzu.vmware.com
+  version: #@ data.values.version
+  releaseNotes: #@ "https://github.com/vmware-tanzu/cert-injection-webhook/releases/tag/v" + data.values.version
+  valuesSchema:
+    openAPIv3:
+      title: cert-injection-webhook.tanzu.vmware.com values schema
+      properties:
+        ca_cert_data:
+          type: string
+          description: contents of CA certificate to be injected into pod trust store
+        annotations:
+          type: array
+          items:
+            type: string
+          description: pod annotations to match on for ca cert injection
+        labels:
+          type: array
+          items:
+            type: string
+          description: pod labels to match on for ca cert injection
+        http_proxy:
+          type: string
+          description: the HTTP proxy to use for network traffic
+        https_proxy:
+          type: string
+          description: the HTTPS proxy to use for network traffic.
+        no_proxy:
+          type: string
+          description: a comma-separated list of hostnames, IP addresses, or IP ranges in CIDR format that should not use a proxy
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: #@ data.values.bundle_image
+      template:
+        - ytt:
+            paths:
+              - "config/"
+        - kbld:
+            paths:
+              - "-"
+              - ".imgpkg/images.yml"
+      deploy:
+        - kapp: {}

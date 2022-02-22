@@ -1,7 +1,7 @@
 // Copyright 2020-Present VMware, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-package podwebhook
+package certinjectionwebhook
 
 import (
 	"bytes"
@@ -28,9 +28,8 @@ const (
 )
 
 var (
-	errMissingNewObject       = errors.New("the new object may not be nil")
-	podResource               = metav1.GroupVersionResource{Version: "v1", Resource: "pods"}
-	root                int64 = 0
+	errMissingNewObject = errors.New("the new object may not be nil")
+	podResource         = metav1.GroupVersionResource{Version: "v1", Resource: "pods"}
 )
 
 // Implements webhook.AdmissionController
@@ -112,8 +111,8 @@ func (ac *admissionController) Admit(ctx context.Context, request *admissionv1.A
 			Allowed: true,
 		}
 	}
-	
-	if pod.Spec.NodeSelector["kubernetes.io/os"] == "windows"{
+
+	if pod.Spec.NodeSelector["kubernetes.io/os"] == "windows" {
 		return &admissionv1.AdmissionResponse{Allowed: true}
 	}
 
@@ -269,7 +268,7 @@ var universalDeserializer = serializer.NewCodecFactory(runtime.NewScheme()).Univ
 
 func intersect(a []string, b map[string]string) bool {
 	for _, k := range a {
-		if v, ok := b[k]; ok && v != "" {
+		if _, ok := b[k]; ok {
 			return true
 		}
 	}

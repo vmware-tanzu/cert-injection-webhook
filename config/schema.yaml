@@ -1,0 +1,13 @@
+#@data/values-schema
+#@overlay/match-child-defaults missing_ok=True
+---
+labels:
+  - ""
+annotations:
+  - ""
+
+ca_cert_data: ""
+http_proxy: ""
+https_proxy: ""
+no_proxy: ""
+

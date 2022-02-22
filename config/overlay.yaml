@@ -1,0 +1,19 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.subset({"metadata":{"name":"cert-injection-webhook"}, "kind": "Deployment"})
+---
+spec:
+  template:
+    spec:
+      containers:
+        #@overlay/match by="name"
+        - name: server
+          #@overlay/match missing_ok=True
+          args:
+          #@ for label in data.values.labels:
+          - #@ "-label={}".format(label)
+          #@ end
+          #@ for annotation in data.values.annotations:
+          - #@ "-annotation={}".format(annotation)
+          #@ end

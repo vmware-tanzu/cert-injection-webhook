@@ -1,12 +1,13 @@
 // Copyright 2020-Present VMware, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-package podwebhook
+package certinjectionwebhook
 
 import (
 	"context"
 	"fmt"
 
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	admissionlisters "k8s.io/client-go/listers/admissionregistration/v1"
 	corelisters "k8s.io/client-go/listers/core/v1"
@@ -87,7 +88,7 @@ func (r *reconciler) reconcileMutatingWebhook(ctx context.Context, caCert []byte
 	} else if !ok {
 		logger.Info("Updating webhook")
 		mwhclient := r.k8sClient.AdmissionregistrationV1().MutatingWebhookConfigurations()
-		if _, err := mwhclient.Update(webhook); err != nil {
+		if _, err := mwhclient.Update(ctx, webhook, metav1.UpdateOptions{}); err != nil {
 			return fmt.Errorf("failed to update webhook: %v", err)
 		}
 	} else {
