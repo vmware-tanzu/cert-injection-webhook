@@ -167,6 +167,30 @@ When providing ca_cert_data directly to kpack, that CA Certificate be injected i
 If you want kpack builds to have CA Certificates for communicating with a self-signed registry,
 make sure the values yaml has a label with `kpack.io/build`. This will match on any build pod that kpack creates.
 
+### Running e2e tests
+
+1. Deploy the cert injection webhook using the following values:
+
+   ```yaml
+   ---
+   http_proxy: some-http-proxy
+   https_proxy: some-https-proxy
+   no_proxy: some-no-proxy
+   ca_cert_data: some-cert
+   labels:
+     - some-label-1
+     - some-label-2
+   annotations:
+     - some-annotation-1
+     - some-annotation-2
+   ```
+
+2. Run the e2e tests
+
+   ```bash
+   go test -v ./e2e/...
+   ```
+
 ### Uninstall
 If installed using kapp controller:
 ```bash
