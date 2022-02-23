@@ -27,7 +27,6 @@ func TestCertInjectionWebhook(t *testing.T) {
 func testCertInjectionWebhook(t *testing.T, when spec.G, it spec.S) {
 	var (
 		client        kubernetes.Interface
-		config        *testConfig
 		ctx           = context.Background()
 		testNamespace = "test"
 	)
@@ -36,8 +35,6 @@ func testCertInjectionWebhook(t *testing.T, when spec.G, it spec.S) {
 		var err error
 		client, err = getClient(t)
 		require.NoError(t, err)
-
-		config = getTestConfig(t, ctx, client)
 
 		deleteNamespace(t, ctx, client, testNamespace)
 
@@ -50,28 +47,30 @@ func testCertInjectionWebhook(t *testing.T, when spec.G, it spec.S) {
 	})
 
 	when("injecting ca certificates and proxy env", func() {
-		it("will match pods by label", func() {
-			for i, label := range config.labels {
+		it("will match pods that have any label the webhook is matching on", func() {
+			//test expects webhook to match on some-label-1 and some-label-2
+			for i, label := range []string{"some-label-1", "some-label-2"} {
 				podName := fmt.Sprintf("testpod-label-%d", i)
 				labels := map[string]string{label: ""}
 
 				createPod(t, ctx, client, testNamespace, podName, labels, map[string]string{})
 				pod := getPod(t, ctx, client, testNamespace, podName)
-				assertCertInjection(t, config, pod)
-				assertProxyEnv(t, config, pod)
+				assertCertInjection(t, pod)
+				assertProxyEnv(t, pod)
 				deletePod(t, ctx, client, testNamespace, podName)
 			}
 		})
 
-		it("will match pods by annotation", func() {
-			for i, annotation := range config.annotations {
+		it("will match pods that have any annotation the webhook is matching on", func() {
+			//test expects webhook to match on some-annotation-1 and some-annotation-2
+			for i, annotation := range []string{"some-annotation-1", "some-annotation-2"} {
 				podName := fmt.Sprintf("testpod-annotation-%d", i)
 				annotations := map[string]string{annotation: podName}
 
 				createPod(t, ctx, client, testNamespace, podName, map[string]string{}, annotations)
 				pod := getPod(t, ctx, client, testNamespace, podName)
-				assertCertInjection(t, config, pod)
-				assertProxyEnv(t, config, pod)
+				assertCertInjection(t, pod)
+				assertProxyEnv(t, pod)
 				deletePod(t, ctx, client, testNamespace, podName)
 			}
 		})
@@ -166,7 +165,7 @@ func getPod(t *testing.T, ctx context.Context, client kubernetes.Interface, name
 	return pod
 }
 
-func assertCertInjection(t *testing.T, config *testConfig, pod *corev1.Pod) {
+func assertCertInjection(t *testing.T, pod *corev1.Pod) {
 	var (
 		initContainerPresent bool
 		volumePresent        bool
@@ -175,7 +174,7 @@ func assertCertInjection(t *testing.T, config *testConfig, pod *corev1.Pod) {
 	for _, container := range pod.Spec.InitContainers {
 		if container.Name == "setup-ca-certs" &&
 			container.VolumeMounts[0].Name == "ca-certs" &&
-			container.Env[0].Value == config.cert {
+			container.Env[0].Value == "some-cert" {
 			initContainerPresent = true
 			break
 		}
@@ -194,31 +193,31 @@ func assertCertInjection(t *testing.T, config *testConfig, pod *corev1.Pod) {
 	}
 }
 
-func assertProxyEnv(t *testing.T, config *testConfig, pod *corev1.Pod) {
+func assertProxyEnv(t *testing.T, pod *corev1.Pod) {
 	expectedEnv := []corev1.EnvVar{
 		{
 			Name:  "HTTP_PROXY",
-			Value: config.httpProxy,
+			Value: "some-http-proxy",
 		},
 		{
 			Name:  "http_proxy",
-			Value: config.httpProxy,
+			Value: "some-http-proxy",
 		},
 		{
 			Name:  "HTTPS_PROXY",
-			Value: config.httpsProxy,
+			Value: "some-https-proxy",
 		},
 		{
 			Name:  "https_proxy",
-			Value: config.httpsProxy,
+			Value: "some-https-proxy",
 		},
 		{
 			Name:  "NO_PROXY",
-			Value: config.noProxy,
+			Value: "some-no-proxy",
 		},
 		{
 			Name:  "no_proxy",
-			Value: config.noProxy,
+			Value: "some-no-proxy",
 		},
 	}
 
