@@ -94,9 +94,9 @@ If you would like to install with [Tanzu Community Edition](https://tanzucommuni
 
 4. Download the [latest release of the cert-injection-webhook](https://github.com/vmware-tanzu/cert-injection-webhook/releases).
 
-5. Apply the `package.yaml` and `metadata.yaml` from the `packaging` directory in the release
+5. Apply the `package.yaml` and `metadata.yaml` from from the release
    ```bash
-   ytt -f packaging/package.yaml -f packaging/metadata.yaml | kapp deploy -a cert-injection-webhook-package -n cert-injection-webhook-install
+   ytt -f package.yaml -f metadata.yaml | kapp deploy -a cert-injection-webhook-package -n cert-injection-webhook-install
    ```
    
 6. Create a package install
