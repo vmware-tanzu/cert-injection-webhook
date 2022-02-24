@@ -125,11 +125,12 @@ If you would like to install with [Tanzu Community Edition](https://tanzucommuni
    ```
 
 ### Install using kapp
-Download the latest release of the cert-injection-webhook.
+Download the latest release of the cert-injection-webhook and get the imagevalues.yaml.
 Use the Carvel tools to install to your cluster.
 
 ```bash
 $ ytt -f ./config \
+      -f <PATH-TO-IMAGEVALUES_YAML> \
       -v ca_cert_data="some cert" \
       --data-value-yaml labels="[label-1, label-2]" \
       --data-value-yaml annotations="[annotation-1, annotation-2]" \
@@ -137,7 +138,7 @@ $ ytt -f ./config \
 ```
 **Note**: You may provide labels, annotations, or both.
 
-If you would like to build the webhook and setup-ca-certs image yourself, or you would like to use the repo's config directory,
+If you would like to build the webhook and setup-ca-certs image yourself,
 use the [pack](https://github.com/buildpacks/pack) CLI.
 
 ```bash
