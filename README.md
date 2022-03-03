@@ -142,8 +142,8 @@ If you would like to build the webhook and setup-ca-certs image yourself,
 use the [pack](https://github.com/buildpacks/pack) CLI.
 
 ```bash
-$ pack build <webhook-image> -e BP_GO_TARGETS="./cmd/webhook" --publish
-$ pack build <setup-ca-certs-image> -e BP_GO_TARGETS="./cmd/setup-ca-certs" --publish
+$ pack build <webhook-image> -e BP_GO_TARGETS="./cmd/webhook" --builder paketobuildpacks/builder:base --publish
+$ pack build <setup-ca-certs-image> -e BP_GO_TARGETS="./cmd/setup-ca-certs" --builder paketobuildpacks/builder:base --publish
 ```
 
 Then, use the Carvel tools to install to your cluster.
