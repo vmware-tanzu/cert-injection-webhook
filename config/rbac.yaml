@@ -59,6 +59,7 @@ rules:
   - defaults.webhook.cert-injection.tanzu.vmware.com
   verbs:
   - update
+  - delete
 - apiGroups:
   - admissionregistration.k8s.io
   resources:
