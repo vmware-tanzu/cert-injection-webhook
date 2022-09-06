@@ -12,7 +12,7 @@ To begin contributing, please read the [contributing](CONTRIBUTING.md) doc.
 
 ## Installation and Usage
 
-The Cert Injection Webhook for Kubernetes is deployed using the [Carvel](hhttps://carvel.dev/) tool suite.
+The Cert Injection Webhook for Kubernetes is deployed using the [Carvel](https://carvel.dev/) tool suite.
 
 ### Install using kapp controller
 If you would like to install with [Tanzu Community Edition](https://tanzucommunityedition.io/). See [this guide](packaging/README.md)
