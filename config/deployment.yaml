@@ -33,9 +33,22 @@ spec:
         app: cert-injection-webhook
     spec:
       serviceAccountName: cert-injection-webhook-sa
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: "RuntimeDefault"
       containers:
         - name: server
           image: #@ data.values.webhook_image or assert.fail("missing webhook_image")
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            privileged: false
+            seccompProfile:
+              type: "RuntimeDefault"
+            capabilities:
+              drop:
+                - ALL
           imagePullPolicy: Always
           volumeMounts:
             - name: webhook-ca-cert
