@@ -94,7 +94,7 @@ func (ac *admissionController) Admit(ctx context.Context, request *admissionv1.A
 	}
 
 	switch request.Operation {
-	case admissionv1.Create, admissionv1.Update:
+	case admissionv1.Create:
 	default:
 		logger.Infof("Unhandled webhook operation, letting it through %v", request.Operation)
 		return &admissionv1.AdmissionResponse{Allowed: true}
@@ -142,35 +142,19 @@ func (ac *admissionController) Admit(ctx context.Context, request *admissionv1.A
 
 func (ac *admissionController) mutate(ctx context.Context, req *admissionv1.AdmissionRequest) ([]byte, error) {
 	newBytes := req.Object.Raw
-	oldBytes := req.OldObject.Raw
 
-	var oldObj, newObj corev1.Pod
-
+	var newObj corev1.Pod
 	if len(newBytes) != 0 {
 		newDecoder := json.NewDecoder(bytes.NewBuffer(newBytes))
 		if err := newDecoder.Decode(&newObj); err != nil {
 			return nil, fmt.Errorf("cannot decode incoming new object: %v", err)
 		}
 	}
-	if len(oldBytes) != 0 {
-		oldDecoder := json.NewDecoder(bytes.NewBuffer(oldBytes))
-		if err := oldDecoder.Decode(&oldObj); err != nil {
-			return nil, fmt.Errorf("cannot decode incoming old object: %v", err)
-		}
-	}
-	var patches duck.JSONPatch
 
+	var patches duck.JSONPatch
 	var err error
 
-	if &oldObj != nil {
-		if req.SubResource == "" {
-			ctx = apis.WithinUpdate(ctx, oldObj)
-		} else {
-			ctx = apis.WithinSubResourceUpdate(ctx, oldObj, req.SubResource)
-		}
-	} else {
-		ctx = apis.WithinCreate(ctx)
-	}
+	ctx = apis.WithinCreate(ctx)
 	ctx = apis.WithUserInfo(ctx, &req.UserInfo)
 
 	if patches, err = ac.setBuildServicePodDefaults(ctx, patches, newObj); err != nil {
