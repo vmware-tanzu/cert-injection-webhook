@@ -231,6 +231,13 @@ func (ac *admissionController) SetCaCerts(ctx context.Context, obj *corev1.Pod) 
 				MountPath: "/workspace",
 			},
 		},
+		SecurityContext: &corev1.SecurityContext{
+			RunAsNonRoot:             boolPointer(true),
+			AllowPrivilegeEscalation: boolPointer(false),
+			Privileged:               boolPointer(false),
+			SeccompProfile:           &corev1.SeccompProfile{Type: corev1.SeccompProfileTypeRuntimeDefault},
+			Capabilities:             &corev1.Capabilities{Drop: []corev1.Capability{"ALL"}},
+		},
 	}
 	obj.Spec.InitContainers = append([]corev1.Container{container}, obj.Spec.InitContainers...)
 }
@@ -257,4 +264,8 @@ func intersect(a []string, b map[string]string) bool {
 		}
 	}
 	return false
+}
+
+func boolPointer(b bool) *bool {
+	return &b
 }
