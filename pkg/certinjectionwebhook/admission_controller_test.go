@@ -8,7 +8,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	jp "github.com/evanphx/json-patch"
+	jp "github.com/evanphx/json-patch/v5"
 	"github.com/sclevine/spec"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
