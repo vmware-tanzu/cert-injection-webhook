@@ -5,7 +5,7 @@ go 1.18
 replace golang.org/x/net v0.1.0 => golang.org/x/net v0.7.0
 
 require (
-	github.com/evanphx/json-patch v5.6.0+incompatible
+	github.com/evanphx/json-patch/v5 v5.6.0
 	github.com/pivotal/kpack v0.10.1
 	github.com/pkg/errors v0.9.1
 	github.com/sclevine/spec v1.4.0
@@ -44,7 +44,7 @@ require (
 	github.com/docker/docker v20.10.20+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.7.0 // indirect
 	github.com/emicklei/go-restful v2.16.0+incompatible // indirect
-	github.com/evanphx/json-patch/v5 v5.6.0 // indirect
+	github.com/evanphx/json-patch v5.6.0+incompatible // indirect
 	github.com/go-kit/log v0.2.0 // indirect
 	github.com/go-logfmt/logfmt v0.5.1 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
