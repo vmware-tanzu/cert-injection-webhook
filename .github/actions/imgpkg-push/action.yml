@@ -30,18 +30,19 @@ runs:
       [[ $GITHUB_REF =~ ^refs\/heads\/release\/(.*)$ ]] && version=${BASH_REMATCH[1]} || version=${{ github.sha }}
       echo "VERSION=${version}" >> $GITHUB_ENV
 
-  - name: Create version yaml
+  - name: Create version overlay
     shell: bash
     run: |
       cat << EOF > imgpkg-bundle/config/version.yml
+      #@ load("@ytt:data", "data")
+      #@ load("@ytt:overlay", "overlay")
+
+      #@overlay/match by=overlay.subset({"metadata":{"name":"cert-injection-webhook"}, "kind": "Deployment"})
       ---
-      apiVersion: v1
-      kind: ConfigMap
       metadata:
-        name: cert-injection-webhook-version
-        namespace: cert-injection-webhook
-      data:
-        version: ${{ env.VERSION }}
+        labels:
+          #@overlay/match missing_ok=True
+          version: ${{ env.VERSION }}
       EOF
       
       cat imgpkg-bundle/config/version.yml
