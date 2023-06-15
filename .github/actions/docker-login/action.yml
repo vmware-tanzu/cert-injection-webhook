@@ -1,0 +1,30 @@
+name: 'Imgpkg Push'
+description: 'Create and push imgpkg bundle'
+
+inputs:
+  registry:
+    description: 'regustry host or full tag to log in to'
+    required: true
+  username:
+    description: 'registry user'
+    required: true
+  password:
+      description: 'registry user'
+      required: true
+
+
+runs:
+  using: "composite"
+  steps:
+  - name: extract host
+    id: extract
+    shell: bash
+    run: |
+      host=$(echo "${{ inputs.registry }}" | awk -F "/" '{print $1}')
+      echo "host=$host" > $GITHUB_OUTPUT
+  - name: Docker Login
+    uses: docker/login-action@v2.1.0
+    with:
+      registry: ${{ steps.extract.outputs.host }}
+      username: ${{ inputs.username }}
+      password: ${{ inputs.password }}

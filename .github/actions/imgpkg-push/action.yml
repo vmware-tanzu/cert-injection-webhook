@@ -1,0 +1,80 @@
+name: 'Imgpkg Push'
+description: 'Create and push imgpkg bundle'
+
+inputs:
+  webhook_image:
+    description: 'webhook image'
+    required: true
+  setup_ca_certs_image:
+    description: 'setup-ca-certs image'
+    required: true
+  tag:
+    description: 'location to write image'
+    required: true
+  bundle_output:
+    description: 'name of bundle output'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+  - name: Copy config
+    shell: bash
+    run: |
+      mkdir -p imgpkg-bundle
+      cp -r config imgpkg-bundle
+
+  - name: Extract version
+    shell: bash
+    run: |
+      [[ $GITHUB_REF =~ ^refs\/heads\/release\/(.*)$ ]] && version=${BASH_REMATCH[1]} || version=${{ github.sha }}
+      echo "VERSION=${version}" >> $GITHUB_ENV
+
+  - name: Create version overlay
+    shell: bash
+    run: |
+      cat << EOF > imgpkg-bundle/config/version.yml
+      #@ load("@ytt:data", "data")
+      #@ load("@ytt:overlay", "overlay")
+
+      #@overlay/match by=overlay.subset({"metadata":{"name":"cert-injection-webhook"}, "kind": "Deployment"})
+      ---
+      metadata:
+        labels:
+          #@overlay/match missing_ok=True
+          version: ${{ env.VERSION }}
+      EOF
+      
+      cat imgpkg-bundle/config/version.yml
+
+  - name: Create imagevalues.yaml
+    shell: bash
+    run: |
+      cat <<EOF > imgpkg-bundle/config/imagevalues.yml
+      #@data/values
+      ---
+      setup_ca_certs_image: ${{ inputs.setup_ca_certs_image }}
+      webhook_image: ${{ inputs.webhook_image }}
+      EOF
+      
+      cat imgpkg-bundle/config/imagevalues.yml
+
+  - name: Generate imgpkg lock
+    shell: bash
+    run: |
+      mkdir -p imgpkg-bundle/.imgpkg
+      kbld -f imgpkg-bundle/config --imgpkg-lock-output imgpkg-bundle/.imgpkg/images.yml
+      
+      cat imgpkg-bundle/.imgpkg/images.yml
+
+  - name: imgpkg push
+    shell: bash
+    run: |
+      imgpkg push -f imgpkg-bundle/ -b "${{inputs.tag}}:${{ env.VERSION }}" --lock-output ${{ inputs.bundle_output }}
+      cat ${{ inputs.bundle_output }}
+
+  - name: Upload Bundle lock
+    uses: actions/upload-artifact@v3
+    with:
+      name: ${{ inputs.bundle_output }}
+      path: ${{ inputs.bundle_output }}
