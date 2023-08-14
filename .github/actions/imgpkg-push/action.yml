@@ -65,7 +65,7 @@ runs:
     shell: bash
     run: |
       mkdir -p imgpkg-bundle/.imgpkg
-      kbld -f imgpkg-bundle/config --imgpkg-lock-output imgpkg-bundle/.imgpkg/images.yml
+      ytt -f imgpkg-bundle/config | kbld -f- --imgpkg-lock-output imgpkg-bundle/.imgpkg/images.yml
       
       cat imgpkg-bundle/.imgpkg/images.yml
 
