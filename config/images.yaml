@@ -1,5 +1,7 @@
 #@data/values-schema
 #@overlay/match-child-defaults missing_ok=True
 ---
-setup_ca_certs_image: ""
-webhook_image: ""
+setup_ca_certs:
+  image: setup-ca-certs
+cert_injection_webhook:
+  image: cert-injection-webhook
