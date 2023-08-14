@@ -53,8 +53,10 @@ runs:
       cat <<EOF > imgpkg-bundle/config/imagevalues.yml
       #@data/values
       ---
-      setup_ca_certs_image: ${{ inputs.setup_ca_certs_image }}
-      webhook_image: ${{ inputs.webhook_image }}
+      setup_ca_certs:
+        image: ${{ inputs.setup_ca_certs_image }}
+      cert_injection_webhook:
+        image: ${{ inputs.webhook_image }}
       EOF
       
       cat imgpkg-bundle/config/imagevalues.yml

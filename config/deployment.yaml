@@ -1,5 +1,4 @@
 #@ load("@ytt:data", "data")
-#@ load("@ytt:assert", "assert")
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -7,7 +6,7 @@ metadata:
   name:  setup-ca-certs-image
   namespace: cert-injection-webhook
 data:
-  image: #@ data.values.setup_ca_certs_image or assert.fail("missing setup_ca_certs_image")
+  image: #@ data.values.setup_ca_certs.image
 ---
 apiVersion: v1
 kind: Secret
@@ -39,7 +38,7 @@ spec:
           type: "RuntimeDefault"
       containers:
         - name: server
-          image: #@ data.values.webhook_image or assert.fail("missing webhook_image")
+          image: #@ data.values.cert_injection_webhook.image
           securityContext:
             runAsNonRoot: true
             allowPrivilegeEscalation: false
