@@ -225,7 +225,7 @@ jobs:
     - name: Promote images
       id: promote
       run: |
-        mkdir final-image-refs
+        mkdir -p final-image-refs
         for image in images/*; do
           dev_image=$(cat $image)
           digest=$(echo $dev_image| cut -d "@" -f 2)
@@ -236,7 +236,8 @@ jobs:
           crane copy "$dev_image" "$final_repo"
 
           echo "${final_repo}@${digest}" > final-image-refs/$name
-          echo "$name=$(cat final-image-refs/$name)" > $GITHUB_OUTPUT
+          echo "$name=$(cat final-image-refs/$name)" >> $GITHUB_OUTPUT
+      
         done
 
     - name: Upload image refs
