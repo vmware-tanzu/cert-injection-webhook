@@ -27,7 +27,7 @@ runs:
   - name: Extract version
     shell: bash
     run: |
-      [[ $GITHUB_REF =~ ^refs\/heads\/release\/(.*)$ ]] && version=${BASH_REMATCH[1]} || version=${{ github.sha }}
+      [[ $GITHUB_REF =~ ^refs\/tags\/v(.*)$ ]] && version=${BASH_REMATCH[1]}  || version=${{ github.sha }}
       echo "VERSION=${version}" >> $GITHUB_ENV
 
   - name: Create version overlay
