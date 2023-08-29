@@ -83,6 +83,7 @@ jobs:
         pack_version: ${{ env.PACK_VERSION }}
         tag: ${{ env.PUBLIC_IMAGE_DEV_REPO }}/setup-ca-certs
         bp_go_targets: "./cmd/setup-ca-certs"
+        builder: "paketobuildpacks/builder-jammy-base"
 
   bundle:
     runs-on: ubuntu-latest
