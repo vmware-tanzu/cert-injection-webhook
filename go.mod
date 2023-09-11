@@ -5,7 +5,7 @@ go 1.18
 replace golang.org/x/net v0.1.0 => golang.org/x/net v0.7.0
 
 require (
-	github.com/evanphx/json-patch/v5 v5.6.0
+	github.com/evanphx/json-patch/v5 v5.7.0
 	github.com/pivotal/kpack v0.10.1
 	github.com/pkg/errors v0.9.1
 	github.com/sclevine/spec v1.4.0
