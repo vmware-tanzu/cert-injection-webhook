@@ -11,6 +11,8 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+
+	"github.com/vmware-tanzu/cert-injection-webhook/pkg/certs"
 )
 
 func main() {
@@ -34,8 +36,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	logger.Println("Populate certificate...")
-	_, err = file.WriteString(os.Getenv("CA_CERTS_DATA"))
+	logger.Println("Parsing certificate...")
+	caCerts, count, err := certs.Parse("CA_CERTS_DATA", os.Environ())
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	logger.Printf("Populate %d certificate(s)...\n", count)
+	_, err = file.WriteString(caCerts)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -47,10 +55,11 @@ func main() {
 
 	logger.Println("Update CA certificates...")
 	cmd := exec.Command("update-ca-certificates", "--etccertsdir", tempCerts, "--localcertsdir", tempLocal)
-	err = cmd.Run()
+	out, err := cmd.CombinedOutput()
 	if err != nil {
 		log.Fatal(err)
 	}
+	logger.Println(string(out))
 
 	logger.Println("Copying CA certificates...")
 	err = CopyDir(tempCerts, "/workspace")
