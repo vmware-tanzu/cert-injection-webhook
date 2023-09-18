@@ -157,10 +157,6 @@ jobs:
       run: |
         cat <<EOT > test-values.yaml
         ---
-        http_proxy: some-http-proxy
-        https_proxy: some-https-proxy
-        no_proxy: some-no-proxy
-        ca_cert_data: some-cert
         labels:
         - some-label-1
         - some-label-2

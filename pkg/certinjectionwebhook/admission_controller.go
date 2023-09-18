@@ -10,7 +10,6 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
-	"github.com/vmware-tanzu/cert-injection-webhook/pkg/certs"
 	admissionv1 "k8s.io/api/admission/v1"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -21,6 +20,8 @@ import (
 	"knative.dev/pkg/apis/duck"
 	"knative.dev/pkg/logging"
 	"knative.dev/pkg/webhook"
+
+	"github.com/vmware-tanzu/cert-injection-webhook/pkg/certs"
 )
 
 const (

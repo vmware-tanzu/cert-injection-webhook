@@ -81,7 +81,7 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
 			annotation = "some.annotation"
 
 			setupCACertsImage = "some-ca-certs-image"
-			caCertsData       = "some-ca-certs-data"
+			caCertsData       = "-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----"
 		)
 
 		envVars := []corev1.EnvVar{
@@ -462,8 +462,8 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
     "path": "/spec/initContainers/0/env",
     "value": [
       {
-        "name": "CA_CERTS_DATA",
-        "value": "some-ca-certs-data"
+        "name": "CA_CERTS_DATA_0",
+        "value": "-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----\n"
       }
     ]
   },
@@ -676,8 +676,8 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
     "path": "/spec/initContainers/0/env",
     "value": [
       {
-        "name": "CA_CERTS_DATA",
-        "value": "some-ca-certs-data"
+        "name": "CA_CERTS_DATA_0",
+        "value": "-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----\n"
       }
     ]
   },
@@ -857,8 +857,8 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
     "path": "/spec/initContainers/0/env",
     "value": [
       {
-        "name": "CA_CERTS_DATA",
-        "value": "some-ca-certs-data"
+        "name": "CA_CERTS_DATA_0",
+        "value": "-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----\n"
       }
     ]
   },
@@ -1111,8 +1111,8 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
     "path": "/spec/initContainers/0/env",
     "value": [
       {
-        "name": "CA_CERTS_DATA",
-        "value": "some-ca-certs-data"
+        "name": "CA_CERTS_DATA_0",
+        "value": "-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----\n"
       }
     ]
   },
@@ -1328,7 +1328,7 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
 			err = json.Unmarshal(response.Patch, &actualPatch)
 			require.NoError(t, err)
 
-			expectedJSON := "[{\"op\":\"add\",\"path\":\"/spec/volumes\",\"value\":[{\"emptyDir\":{},\"name\":\"ca-certs\"}]},{\"op\":\"add\",\"path\":\"/spec/imagePullSecrets\",\"value\":[{\"name\":\"system-registry-credentials\"}]},{\"op\":\"add\",\"path\":\"/spec/initContainers/2\",\"value\":{\"env\":[{\"name\":\"EXISTING\",\"value\":\"VALUE\"}],\"image\":\"image\",\"name\":\"init-container-with-env\",\"resources\":{},\"volumeMounts\":[{\"mountPath\":\"/etc/ssl/certs\",\"name\":\"ca-certs\",\"readOnly\":true}]}},{\"op\":\"add\",\"path\":\"/spec/initContainers/0/env\",\"value\":[{\"name\":\"CA_CERTS_DATA\",\"value\":\"some-ca-certs-data\"}]},{\"op\":\"add\",\"path\":\"/spec/initContainers/0/volumeMounts\",\"value\":[{\"mountPath\":\"/workspace\",\"name\":\"ca-certs\"}]},{\"op\":\"add\",\"path\":\"/spec/initContainers/0/imagePullPolicy\",\"value\":\"IfNotPresent\"},{\"op\": \"add\", \"path\": \"/spec/initContainers/0/securityContext\", \"value\": {\"allowPrivilegeEscalation\": false, \"capabilities\": {\"drop\": [\"ALL\"]}, \"privileged\": false, \"runAsNonRoot\": true, \"seccompProfile\": {\"type\": \"RuntimeDefault\"}}},{\"op\":\"replace\",\"path\":\"/spec/initContainers/0/name\",\"value\":\"setup-ca-certs\"},{\"op\":\"replace\",\"path\":\"/spec/initContainers/0/image\",\"value\":\"some-ca-certs-image\"},{\"op\":\"add\",\"path\":\"/spec/initContainers/0/workingDir\",\"value\":\"/workspace\"},{\"op\":\"replace\",\"path\":\"/spec/initContainers/1/name\",\"value\":\"init-container-without-env\"},{\"op\":\"add\",\"path\":\"/spec/initContainers/1/volumeMounts\",\"value\":[{\"mountPath\":\"/etc/ssl/certs\",\"name\":\"ca-certs\",\"readOnly\":true}]},{\"op\":\"remove\",\"path\":\"/spec/initContainers/1/env\"},{\"op\":\"add\",\"path\":\"/spec/containers/0/volumeMounts\",\"value\":[{\"mountPath\":\"/etc/ssl/certs\",\"name\":\"ca-certs\",\"readOnly\":true}]},{\"op\":\"add\",\"path\":\"/spec/containers/1/volumeMounts\",\"value\":[{\"mountPath\":\"/etc/ssl/certs\",\"name\":\"ca-certs\",\"readOnly\":true}]}]"
+			expectedJSON := "[{\"op\":\"add\",\"path\":\"/spec/volumes\",\"value\":[{\"emptyDir\":{},\"name\":\"ca-certs\"}]},{\"op\":\"add\",\"path\":\"/spec/imagePullSecrets\",\"value\":[{\"name\":\"system-registry-credentials\"}]},{\"op\":\"add\",\"path\":\"/spec/initContainers/2\",\"value\":{\"env\":[{\"name\":\"EXISTING\",\"value\":\"VALUE\"}],\"image\":\"image\",\"name\":\"init-container-with-env\",\"resources\":{},\"volumeMounts\":[{\"mountPath\":\"/etc/ssl/certs\",\"name\":\"ca-certs\",\"readOnly\":true}]}},{\"op\":\"add\",\"path\":\"/spec/initContainers/0/env\",\"value\":[{\"name\":\"CA_CERTS_DATA_0\",\"value\":\"-----BEGIN CERTIFICATE-----\\n-----END CERTIFICATE-----\\n\"}]},{\"op\":\"add\",\"path\":\"/spec/initContainers/0/volumeMounts\",\"value\":[{\"mountPath\":\"/workspace\",\"name\":\"ca-certs\"}]},{\"op\":\"add\",\"path\":\"/spec/initContainers/0/imagePullPolicy\",\"value\":\"IfNotPresent\"},{\"op\": \"add\", \"path\": \"/spec/initContainers/0/securityContext\", \"value\": {\"allowPrivilegeEscalation\": false, \"capabilities\": {\"drop\": [\"ALL\"]}, \"privileged\": false, \"runAsNonRoot\": true, \"seccompProfile\": {\"type\": \"RuntimeDefault\"}}},{\"op\":\"replace\",\"path\":\"/spec/initContainers/0/name\",\"value\":\"setup-ca-certs\"},{\"op\":\"replace\",\"path\":\"/spec/initContainers/0/image\",\"value\":\"some-ca-certs-image\"},{\"op\":\"add\",\"path\":\"/spec/initContainers/0/workingDir\",\"value\":\"/workspace\"},{\"op\":\"replace\",\"path\":\"/spec/initContainers/1/name\",\"value\":\"init-container-without-env\"},{\"op\":\"add\",\"path\":\"/spec/initContainers/1/volumeMounts\",\"value\":[{\"mountPath\":\"/etc/ssl/certs\",\"name\":\"ca-certs\",\"readOnly\":true}]},{\"op\":\"remove\",\"path\":\"/spec/initContainers/1/env\"},{\"op\":\"add\",\"path\":\"/spec/containers/0/volumeMounts\",\"value\":[{\"mountPath\":\"/etc/ssl/certs\",\"name\":\"ca-certs\",\"readOnly\":true}]},{\"op\":\"add\",\"path\":\"/spec/containers/1/volumeMounts\",\"value\":[{\"mountPath\":\"/etc/ssl/certs\",\"name\":\"ca-certs\",\"readOnly\":true}]}]"
 			var expectedPatch []jsonpatch.JsonPatchOperation
 			err = json.Unmarshal([]byte(expectedJSON), &expectedPatch)
 			require.NoError(t, err)
@@ -1378,7 +1378,7 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
 			err = json.Unmarshal(response.Patch, &actualPatch)
 			require.NoError(t, err)
 
-			expectedJSON := "[{\"op\":\"add\",\"path\":\"/spec/volumes\",\"value\":[{\"emptyDir\":{},\"name\":\"ca-certs\"}]},{\"op\":\"add\",\"path\":\"/spec/imagePullSecrets/1\",\"value\":{\"name\":\"system-registry-credentials\"}},{\"op\":\"add\",\"path\":\"/spec/initContainers/2\",\"value\":{\"env\":[{\"name\":\"EXISTING\",\"value\":\"VALUE\"}],\"image\":\"image\",\"name\":\"init-container-with-env\",\"resources\":{},\"volumeMounts\":[{\"mountPath\":\"/etc/ssl/certs\",\"name\":\"ca-certs\",\"readOnly\":true}]}},{\"op\":\"add\",\"path\":\"/spec/initContainers/0/env\",\"value\":[{\"name\":\"CA_CERTS_DATA\",\"value\":\"some-ca-certs-data\"}]},{\"op\":\"add\",\"path\":\"/spec/initContainers/0/volumeMounts\",\"value\":[{\"mountPath\":\"/workspace\",\"name\":\"ca-certs\"}]},{\"op\":\"add\",\"path\":\"/spec/initContainers/0/imagePullPolicy\",\"value\":\"IfNotPresent\"},{\"op\": \"add\", \"path\": \"/spec/initContainers/0/securityContext\", \"value\": {\"allowPrivilegeEscalation\": false, \"capabilities\": {\"drop\": [\"ALL\"]}, \"privileged\": false, \"runAsNonRoot\": true, \"seccompProfile\": {\"type\": \"RuntimeDefault\"}}},{\"op\":\"replace\",\"path\":\"/spec/initContainers/0/name\",\"value\":\"setup-ca-certs\"},{\"op\":\"replace\",\"path\":\"/spec/initContainers/0/image\",\"value\":\"some-ca-certs-image\"},{\"op\":\"add\",\"path\":\"/spec/initContainers/0/workingDir\",\"value\":\"/workspace\"},{\"op\":\"replace\",\"path\":\"/spec/initContainers/1/name\",\"value\":\"init-container-without-env\"},{\"op\":\"add\",\"path\":\"/spec/initContainers/1/volumeMounts\",\"value\":[{\"mountPath\":\"/etc/ssl/certs\",\"name\":\"ca-certs\",\"readOnly\":true}]},{\"op\":\"remove\",\"path\":\"/spec/initContainers/1/env\"},{\"op\":\"add\",\"path\":\"/spec/containers/0/volumeMounts\",\"value\":[{\"mountPath\":\"/etc/ssl/certs\",\"name\":\"ca-certs\",\"readOnly\":true}]},{\"op\":\"add\",\"path\":\"/spec/containers/1/volumeMounts\",\"value\":[{\"mountPath\":\"/etc/ssl/certs\",\"name\":\"ca-certs\",\"readOnly\":true}]}]"
+			expectedJSON := "[{\"op\":\"add\",\"path\":\"/spec/volumes\",\"value\":[{\"emptyDir\":{},\"name\":\"ca-certs\"}]},{\"op\":\"add\",\"path\":\"/spec/imagePullSecrets/1\",\"value\":{\"name\":\"system-registry-credentials\"}},{\"op\":\"add\",\"path\":\"/spec/initContainers/2\",\"value\":{\"env\":[{\"name\":\"EXISTING\",\"value\":\"VALUE\"}],\"image\":\"image\",\"name\":\"init-container-with-env\",\"resources\":{},\"volumeMounts\":[{\"mountPath\":\"/etc/ssl/certs\",\"name\":\"ca-certs\",\"readOnly\":true}]}},{\"op\":\"add\",\"path\":\"/spec/initContainers/0/env\",\"value\":[{\"name\":\"CA_CERTS_DATA_0\",\"value\":\"-----BEGIN CERTIFICATE-----\\n-----END CERTIFICATE-----\\n\"}]},{\"op\":\"add\",\"path\":\"/spec/initContainers/0/volumeMounts\",\"value\":[{\"mountPath\":\"/workspace\",\"name\":\"ca-certs\"}]},{\"op\":\"add\",\"path\":\"/spec/initContainers/0/imagePullPolicy\",\"value\":\"IfNotPresent\"},{\"op\": \"add\", \"path\": \"/spec/initContainers/0/securityContext\", \"value\": {\"allowPrivilegeEscalation\": false, \"capabilities\": {\"drop\": [\"ALL\"]}, \"privileged\": false, \"runAsNonRoot\": true, \"seccompProfile\": {\"type\": \"RuntimeDefault\"}}},{\"op\":\"replace\",\"path\":\"/spec/initContainers/0/name\",\"value\":\"setup-ca-certs\"},{\"op\":\"replace\",\"path\":\"/spec/initContainers/0/image\",\"value\":\"some-ca-certs-image\"},{\"op\":\"add\",\"path\":\"/spec/initContainers/0/workingDir\",\"value\":\"/workspace\"},{\"op\":\"replace\",\"path\":\"/spec/initContainers/1/name\",\"value\":\"init-container-without-env\"},{\"op\":\"add\",\"path\":\"/spec/initContainers/1/volumeMounts\",\"value\":[{\"mountPath\":\"/etc/ssl/certs\",\"name\":\"ca-certs\",\"readOnly\":true}]},{\"op\":\"remove\",\"path\":\"/spec/initContainers/1/env\"},{\"op\":\"add\",\"path\":\"/spec/containers/0/volumeMounts\",\"value\":[{\"mountPath\":\"/etc/ssl/certs\",\"name\":\"ca-certs\",\"readOnly\":true}]},{\"op\":\"add\",\"path\":\"/spec/containers/1/volumeMounts\",\"value\":[{\"mountPath\":\"/etc/ssl/certs\",\"name\":\"ca-certs\",\"readOnly\":true}]}]"
 			var expectedPatch []jsonpatch.JsonPatchOperation
 			err = json.Unmarshal([]byte(expectedJSON), &expectedPatch)
 			require.NoError(t, err)
