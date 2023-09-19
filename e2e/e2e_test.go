@@ -160,27 +160,32 @@ test container logs:
 		})
 
 		it("can handle super long certs", func() {
-			key1, cert1, err := generateCA()
-			require.NoError(t, err)
-			pem1, err := encodeCert(key1, cert1)
-			require.NoError(t, err)
-
-			key2, cert2, err := generateCA()
-			require.NoError(t, err)
-			pem2, err := encodeCert(key2, cert2)
-			require.NoError(t, err)
-
-			// k8s configmaps have a size limit of 1mb, 550 certs should be just shy of that
+			// k8s configmaps have a size limit of 1mb, 550 certs should be just shy of that.
 			certChain := ""
 			for i := 0; i < 549; i++ {
-				certChain += fmt.Sprintln(pem1)
-			}
-			certChain += fmt.Sprintln(pem2)
-			require.NoError(t, setCaCerts(ctx, client, certChain))
+				// because openssl rehash skips duplicates, we're currently generating
+				// unique keys+certs at the cost of increased time (even when using prng
+				// instead of cryptographically secure rng)
+				k, c, err := generateCA()
+				require.NoError(t, err)
+				p, err := encodeCert(k, c)
+				require.NoError(t, err)
 
+				certChain += fmt.Sprintln(p)
+			}
+
+			// actual key/cert that will be used in test
+			key, cert, err := generateCA()
+			require.NoError(t, err)
+			pem, err := encodeCert(key, cert)
+			require.NoError(t, err)
+
+			certChain += fmt.Sprintln(pem)
+
+			require.NoError(t, setCaCerts(ctx, client, certChain))
 			require.NoError(t, restartController(t, ctx, client))
 
-			testingCert, err := generateCert(key2, cert2)
+			testingCert, err := generateCert(key, cert)
 			require.NoError(t, err)
 
 			podName = "testpod-many-certs"

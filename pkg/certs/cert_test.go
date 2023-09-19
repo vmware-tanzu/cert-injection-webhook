@@ -98,9 +98,9 @@ func testCerts(t *testing.T, when spec.G, it spec.S) {
 				"SOME-OTHER=ENV",
 			}
 
-			cert, err := certs.Parse("CA_CERT_DATA", envs)
+			certs, err := certs.Parse("CA_CERT_DATA", envs)
 			require.NoError(t, err)
-			require.Equal(t, "", cert)
+			require.Len(t, certs, 0)
 		})
 
 		it("parsing single valid cert", func() {
@@ -109,9 +109,10 @@ func testCerts(t *testing.T, when spec.G, it spec.S) {
 				fmt.Sprintf("CA_CERT_DATA_0=%v", c1),
 			}
 
-			cert, err := certs.Parse("CA_CERT_DATA", envs)
+			certs, err := certs.Parse("CA_CERT_DATA", envs)
 			require.NoError(t, err)
-			require.Equal(t, c1, cert)
+			require.Len(t, certs, 1)
+			require.Equal(t, c1, certs[0])
 		})
 
 		it("parsing single invalid cert", func() {
@@ -133,9 +134,10 @@ func testCerts(t *testing.T, when spec.G, it spec.S) {
 				fmt.Sprintf("CA_CERT_DATA_2=%v", c3),
 			}
 
-			cert, err := certs.Parse("CA_CERT_DATA", envs)
+			certs, err := certs.Parse("CA_CERT_DATA", envs)
 			require.NoError(t, err)
-			require.Equal(t, c1+"\n"+c2+"\n"+c3, cert)
+			require.Len(t, certs, 3)
+			require.Equal(t, []string{c1, c2, c3}, certs)
 		})
 
 		it("parsing multiple invalid certs", func() {

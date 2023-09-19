@@ -18,26 +18,26 @@ func Split(certs string) []string {
 
 // Parse the environment variables satsifying the pattern and construct a list
 // of certs.
-func Parse(pattern string, environ []string) (string, int, error) {
+func Parse(pattern string, environ []string) ([]string, error) {
 	envVars := map[string]string{}
 	for _, e := range environ {
 		parts := strings.SplitN(e, "=", 2)
 		envVars[parts[0]] = parts[1]
 	}
 
-	var certs string
+	var certs []string
 	for i := 0; ; i++ {
 		name := fmt.Sprintf("%s_%d", pattern, i)
 		fragment, found := envVars[name]
 		if !found {
-			return certs, i, nil
+			return certs, nil
 		}
 
 		block, _ := pem.Decode([]byte(fragment))
 		if block == nil {
-			return "", i, fmt.Errorf("cert not in pem format")
+			return nil, fmt.Errorf("cert not in pem format")
 		}
 
-		certs += fragment
+		certs = append(certs, fragment)
 	}
 }

@@ -45,9 +45,9 @@ cat > test.crt <<EOF
 EOF
 
 # openssl has its own separate certs dir ('openssl version -a' -> OPENSSLDIR),
-# this is usually updated by 'update-ca-certificates', but since we only save the /etc/ssl/certs
-# dir, we need to explicitly configure it here
-openssl verify -CAfile /etc/ssl/certs/ca-certificates.crt test.crt
+# this is usually updated by 'update-ca-certificates', but since we only save
+# the /etc/ssl/certs dir, we need to explicitly pass it in here
+openssl verify -CApath /etc/ssl/certs/ test.crt
 `, cert)
 }
 

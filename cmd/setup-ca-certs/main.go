@@ -4,6 +4,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -30,27 +31,15 @@ func main() {
 	}
 	defer os.RemoveAll(tempCerts)
 
-	logger.Println("Create certificate...")
-	file, err := os.Create(filepath.Join(tempLocal, "cert-injection-webhook.crt"))
+	logger.Println("Parsing certificate(s)...")
+	caCerts, err := certs.Parse("CA_CERTS_DATA", os.Environ())
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	logger.Println("Parsing certificate...")
-	caCerts, count, err := certs.Parse("CA_CERTS_DATA", os.Environ())
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	logger.Printf("Populate %d certificate(s)...\n", count)
-	_, err = file.WriteString(caCerts)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = file.Close()
-	if err != nil {
-		log.Fatal(err)
+	logger.Printf("Populate %d certificate(s)...\n", len(caCerts))
+	for i, cert := range caCerts {
+		writeCert(tempLocal, i, cert)
 	}
 
 	logger.Println("Update CA certificates...")
@@ -68,6 +57,19 @@ func main() {
 	}
 
 	logger.Println("Finished setting up CA certificates")
+}
+
+func writeCert(dir string, i int, cert string) {
+	file, err := os.Create(filepath.Join(dir, fmt.Sprintf("cert_injection_webhook_%d.crt", i)))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	_, err = file.WriteString(cert)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func CopyDir(src string, dest string) error {
