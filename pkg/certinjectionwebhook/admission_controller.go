@@ -20,6 +20,8 @@ import (
 	"knative.dev/pkg/apis/duck"
 	"knative.dev/pkg/logging"
 	"knative.dev/pkg/webhook"
+
+	"github.com/vmware-tanzu/cert-injection-webhook/pkg/certs"
 )
 
 const (
@@ -214,15 +216,18 @@ func (ac *admissionController) SetCaCerts(ctx context.Context, obj *corev1.Pod) 
 		obj.Spec.ImagePullSecrets = append(obj.Spec.ImagePullSecrets, ac.imagePullSecrets)
 	}
 
+	var envVars []corev1.EnvVar
+	for i, cert := range certs.Split(ac.caCertsData) {
+		envVars = append(envVars, corev1.EnvVar{
+			Name:  fmt.Sprintf("CA_CERTS_DATA_%d", i),
+			Value: cert,
+		})
+	}
+
 	container := corev1.Container{
-		Name:  "setup-ca-certs",
-		Image: ac.setupCACertsImage,
-		Env: []corev1.EnvVar{
-			{
-				Name:  "CA_CERTS_DATA",
-				Value: ac.caCertsData,
-			},
-		},
+		Name:            "setup-ca-certs",
+		Image:           ac.setupCACertsImage,
+		Env:             envVars,
 		ImagePullPolicy: corev1.PullIfNotPresent,
 		WorkingDir:      "/workspace",
 		VolumeMounts: []corev1.VolumeMount{
