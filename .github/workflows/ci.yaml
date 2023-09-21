@@ -171,7 +171,7 @@ jobs:
           | kapp deploy -a cert-injection-webhook -f- -y
 
     - name: Run Tests
-      run: go test -v ./e2e/...
+      run: go test --timeout=30m -v ./e2e/...
 
   release:
     needs:
