@@ -106,7 +106,7 @@ jobs:
         password: ${{ secrets.REGISTRY_PASSWORD }}
 
     - name: Setup carvel
-      uses: carvel-dev/setup-action@v1
+      uses: carvel-dev/setup-action@v2
       with:
         token: ${{ secrets.RELEASE_TOKEN }}
         only: ytt, kbld, imgpkg
@@ -138,7 +138,7 @@ jobs:
       uses: imjasonh/setup-crane@v0.3
 
     - name: Setup carvel
-      uses: carvel-dev/setup-action@v1
+      uses: carvel-dev/setup-action@v2
       with:
         token: ${{ secrets.RELEASE_TOKEN }}
         only: ytt, kapp, imgpkg, kbld
@@ -195,7 +195,7 @@ jobs:
       uses: imjasonh/setup-crane@v0.3
 
     - name: Setup carvel
-      uses: carvel-dev/setup-action@v1
+      uses: carvel-dev/setup-action@v2
       with:
         token: ${{ secrets.RELEASE_TOKEN }}
         only: ytt, kbld, imgpkg
