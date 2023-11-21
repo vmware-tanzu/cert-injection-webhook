@@ -1,8 +1,6 @@
 module github.com/vmware-tanzu/cert-injection-webhook
 
-go 1.18
-
-replace golang.org/x/net v0.1.0 => golang.org/x/net v0.7.0
+go 1.21
 
 require (
 	github.com/evanphx/json-patch/v5 v5.7.0
