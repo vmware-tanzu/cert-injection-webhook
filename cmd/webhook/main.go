@@ -12,6 +12,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"strconv"
 
 	corev1 "k8s.io/api/core/v1"
 	"knative.dev/pkg/configmap"
@@ -29,6 +30,7 @@ const (
 	defaultWebhookName       = "defaults.webhook.cert-injection.tanzu.vmware.com"
 	webhookPath              = "/certinjectionwebhook"
 	defaultWebhookSecretName = "cert-injection-webhook-tls"
+	defaultWebhookPort       = 8443
 	caCertsFile              = "/run/config_maps/ca_cert/ca.crt"
 	httpProxyFile            = "/run/config_maps/http_proxy/value"
 	httpsProxyFile           = "/run/config_maps/https_proxy/value"
@@ -59,9 +61,15 @@ func main() {
 		webhookSecretName = defaultWebhookSecretName
 	}
 
+	webhookPort := defaultWebhookPort
+	webhookPortEnv := os.Getenv("WEBHOOK_PORT")
+	if parsedWebhookPort, err := strconv.Atoi(webhookPortEnv); err == nil {
+		webhookPort = parsedWebhookPort
+	}
+
 	ctx := sharedmain.WithHADisabled(webhook.WithOptions(signals.NewContext(), webhook.Options{
 		ServiceName: "cert-injection-webhook",
-		Port:        8443,
+		Port:        webhookPort,
 		SecretName:  webhookSecretName,
 	}))
 
