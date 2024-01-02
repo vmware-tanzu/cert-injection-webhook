@@ -77,8 +77,10 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
 
 	when("#Admit", func() {
 		const (
-			label      = "some/label"
-			annotation = "some.annotation"
+			label           = "some/label"
+			annotation      = "some.annotation"
+			labelValue      = "label-value"
+			annotationValue = "annotation-value"
 
 			setupCACertsImage = "some-ca-certs-image"
 			caCertsData       = "-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----"
@@ -598,7 +600,6 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
 			require.NoError(t, err)
 
 			require.Equal(t, true, response.Allowed)
-
 		})
 
 		it("sets the ca certs on all containers on the pods that are annotated", func() {
@@ -1220,6 +1221,76 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
 			assert.ElementsMatch(t, expectedPatch, actualPatch)
 		})
 
+		it("patches pods that match by label value", func() {
+			ac, err := certinjectionwebhook.NewAdmissionController(
+				name,
+				path,
+				func(ctx context.Context) context.Context { return ctx },
+				[]string{label + "= " + labelValue},
+				[]string{},
+				envVars,
+				"",
+				"",
+				corev1.LocalObjectReference{},
+			)
+			require.NoError(t, err)
+
+			testPod.Labels = map[string]string{
+				label: labelValue,
+			}
+
+			bytes, err := json.Marshal(testPod)
+			require.NoError(t, err)
+
+			admissionRequest := &admissionv1.AdmissionRequest{
+				Name: "testAdmissionRequest",
+				Object: runtime.RawExtension{
+					Raw: bytes,
+				},
+				Operation: admissionv1.Create,
+				Resource:  metav1.GroupVersionResource{Version: "v1", Resource: "pods"},
+			}
+
+			response := ac.Admit(ctx, admissionRequest)
+			wtesting.ExpectAllowed(t, response)
+			require.NotEmpty(t, response.Patch)
+		})
+
+		it("patches pods that match by annotation value", func() {
+			ac, err := certinjectionwebhook.NewAdmissionController(
+				name,
+				path,
+				func(ctx context.Context) context.Context { return ctx },
+				[]string{},
+				[]string{annotation + " =" + annotationValue},
+				envVars,
+				"",
+				"",
+				corev1.LocalObjectReference{},
+			)
+			require.NoError(t, err)
+
+			testPod.Annotations = map[string]string{
+				annotation: annotationValue,
+			}
+
+			bytes, err := json.Marshal(testPod)
+			require.NoError(t, err)
+
+			admissionRequest := &admissionv1.AdmissionRequest{
+				Name: "testAdmissionRequest",
+				Object: runtime.RawExtension{
+					Raw: bytes,
+				},
+				Operation: admissionv1.Create,
+				Resource:  metav1.GroupVersionResource{Version: "v1", Resource: "pods"},
+			}
+
+			response := ac.Admit(ctx, admissionRequest)
+			wtesting.ExpectAllowed(t, response)
+			require.NotEmpty(t, response.Patch)
+		})
+
 		it("only patches pods", func() {
 			testPod.Annotations = map[string]string{
 				annotation: "some value",
@@ -1385,7 +1456,6 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
 
 			assert.ElementsMatch(t, expectedPatch, actualPatch)
 		})
-
 	})
 
 	it("#Path returns path", func() {
@@ -1394,5 +1464,4 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
 
 		require.Equal(t, ac.Path(), path)
 	})
-
 }
