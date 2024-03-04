@@ -7,7 +7,7 @@ require (
 	github.com/pivotal/kpack v0.10.1
 	github.com/pkg/errors v0.9.1
 	github.com/sclevine/spec v1.4.0
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.9.0
 	gomodules.xyz/jsonpatch/v3 v3.0.1
 	k8s.io/api v0.24.8
 	k8s.io/apimachinery v0.24.8
