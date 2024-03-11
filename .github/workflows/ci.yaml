@@ -262,7 +262,7 @@ jobs:
         path: config.tar.gz
 
     - name: Create Draft Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         name: cert-injection-webhook v${{ env.VERSION }}
         tag_name: v${{ env.VERSION }}
