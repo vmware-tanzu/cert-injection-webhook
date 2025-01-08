@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 
 	"github.com/pkg/errors"
 	admissionv1 "k8s.io/api/admission/v1"
@@ -224,6 +225,34 @@ func (ac *admissionController) SetCaCerts(ctx context.Context, obj *corev1.Pod) 
 		})
 	}
 
+	var resources corev1.ResourceRequirements
+	if cpuRequest, found := os.LookupEnv("INIT_CONTAINER_CPU_REQUEST"); found {
+		if resources.Requests == nil {
+			resources.Requests = corev1.ResourceList{}
+		}
+		resources.Requests[corev1.ResourceCPU] = resource.MustParse(cpuRequest)
+	}
+
+	if memoryRequest, found := os.LookupEnv("INIT_CONTAINER_MEMORY_REQUEST"); found {
+		if resources.Requests == nil {
+			resources.Requests = corev1.ResourceList{}
+		}
+		resources.Requests[corev1.ResourceMemory] = resource.MustParse(memoryRequest)
+	}
+
+	if cpuLimit, found := os.LookupEnv("INIT_CONTAINER_CPU_LIMIT"); found {
+		if resources.Limits == nil {
+			resources.Limits = corev1.ResourceList{}
+		}
+		resources.Limits[corev1.ResourceCPU] = resource.MustParse(cpuLimit)
+	}
+	if memoryLimit, found := os.LookupEnv("INIT_CONTAINER_MEMORY_LIMIT"); found {
+		if resources.Limits == nil {
+			resources.Limits = corev1.ResourceList{}
+		}
+		resources.Limits[corev1.ResourceMemory] = resource.MustParse(memoryLimit)
+	}
+
 	container := corev1.Container{
 		Name:            "setup-ca-certs",
 		Image:           ac.setupCACertsImage,
@@ -244,6 +273,11 @@ func (ac *admissionController) SetCaCerts(ctx context.Context, obj *corev1.Pod) 
 			Capabilities:             &corev1.Capabilities{Drop: []corev1.Capability{"ALL"}},
 		},
 	}
+
+	if len(resources.Requests) > 0 || len(resources.Limits) > 0 {
+		container.Resources = resources
+	}
+
 	obj.Spec.InitContainers = append([]corev1.Container{container}, obj.Spec.InitContainers...)
 }
 
