@@ -6,20 +6,20 @@ package certinjectionwebhook_test
 import (
 	"context"
 	"encoding/json"
+	"os"
 	"testing"
 
 	jp "github.com/evanphx/json-patch/v5"
 	"github.com/sclevine/spec"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/vmware-tanzu/cert-injection-webhook/pkg/certinjectionwebhook"
 	"gomodules.xyz/jsonpatch/v3"
 	admissionv1 "k8s.io/api/admission/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	wtesting "knative.dev/pkg/webhook/testing"
-
-	"github.com/vmware-tanzu/cert-injection-webhook/pkg/certinjectionwebhook"
 )
 
 func TestPodAdmissionController(t *testing.T) {
@@ -1395,4 +1395,105 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
 		require.Equal(t, ac.Path(), path)
 	})
 
+}
+
+func TestParseResource(t *testing.T) {
+	tests := []struct {
+		name      string
+		envVar    string
+		envValue  string
+		expectErr bool
+		expectVal string
+	}{
+		{"Valid CPU Request", "TEST_CPU_REQUEST", "100m", false, "100m"},
+		{"Valid Memory Request", "TEST_MEMORY_REQUEST", "128Mi", false, "128Mi"},
+		{"Invalid Format", "TEST_INVALID", "invalid", true, ""},
+		{"Missing Env Var", "TEST_MISSING", "", false, ""},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Set or unset the environment variable
+			if tt.envValue != "" {
+				os.Setenv(tt.envVar, tt.envValue)
+				defer os.Unsetenv(tt.envVar)
+			} else {
+				os.Unsetenv(tt.envVar)
+			}
+
+			qty, err := certinjectionwebhook.ParseResource(tt.envVar)
+			if (err != nil) != tt.expectErr {
+				t.Errorf("Expected error: %v, got: %v", tt.expectErr, err)
+			}
+
+			if err == nil && tt.expectVal != "" && qty.String() != tt.expectVal {
+				t.Errorf("Expected value: %s, got: %s", tt.expectVal, qty.String())
+			}
+		})
+	}
+}
+
+func TestResourceRequirementsParsing(t *testing.T) {
+	// Set environment variables
+	os.Setenv("INIT_CONTAINER_CPU_REQUEST", "200m")
+	os.Setenv("INIT_CONTAINER_MEMORY_REQUEST", "256Mi")
+	os.Setenv("INIT_CONTAINER_CPU_LIMIT", "1")
+	os.Setenv("INIT_CONTAINER_MEMORY_LIMIT", "512Mi")
+	defer func() {
+		os.Unsetenv("INIT_CONTAINER_CPU_REQUEST")
+		os.Unsetenv("INIT_CONTAINER_MEMORY_REQUEST")
+		os.Unsetenv("INIT_CONTAINER_CPU_LIMIT")
+		os.Unsetenv("INIT_CONTAINER_MEMORY_LIMIT")
+	}()
+
+	var resources corev1.ResourceRequirements
+
+	// Apply the logic under test
+	if cpuRequest, err := certinjectionwebhook.ParseResource("INIT_CONTAINER_CPU_REQUEST"); err == nil {
+		if resources.Requests == nil {
+			resources.Requests = corev1.ResourceList{}
+		}
+		resources.Requests[corev1.ResourceCPU] = cpuRequest
+	}
+	if memoryRequest, err := certinjectionwebhook.ParseResource("INIT_CONTAINER_MEMORY_REQUEST"); err == nil {
+		if resources.Requests == nil {
+			resources.Requests = corev1.ResourceList{}
+		}
+		resources.Requests[corev1.ResourceMemory] = memoryRequest
+	}
+	if cpuLimit, err := certinjectionwebhook.ParseResource("INIT_CONTAINER_CPU_LIMIT"); err == nil {
+		if resources.Limits == nil {
+			resources.Limits = corev1.ResourceList{}
+		}
+		resources.Limits[corev1.ResourceCPU] = cpuLimit
+	}
+	if memoryLimit, err := certinjectionwebhook.ParseResource("INIT_CONTAINER_MEMORY_LIMIT"); err == nil {
+		if resources.Limits == nil {
+			resources.Limits = corev1.ResourceList{}
+		}
+		resources.Limits[corev1.ResourceMemory] = memoryLimit
+	}
+
+	expectedRequests := map[corev1.ResourceName]string{
+		corev1.ResourceCPU:    "200m",
+		corev1.ResourceMemory: "256Mi",
+	}
+	expectedLimits := map[corev1.ResourceName]string{
+		corev1.ResourceCPU:    "1",
+		corev1.ResourceMemory: "512Mi",
+	}
+
+	for k, v := range expectedRequests {
+		qty := resources.Requests[k] // Copy value from map
+		if qty.String() != v {
+			t.Errorf("Expected request %s for %s, got %s", v, k, qty.String())
+		}
+	}
+
+	for k, v := range expectedLimits {
+		qty := resources.Limits[k] // Copy value from map
+		if qty.String() != v {
+			t.Errorf("Expected limit %s for %s, got %s", v, k, qty.String())
+		}
+	}
 }
