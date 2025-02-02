@@ -50,6 +50,13 @@ func main() {
 	}
 	logger.Println(string(out))
 
+	logger.Println("Forcing the generation of hashed symlinks...")
+	cmd = exec.Command("c_rehash", tempCerts)
+	err = cmd.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	logger.Println("Copying CA certificates...")
 	err = CopyDir(tempCerts, "/workspace")
 	if err != nil {
