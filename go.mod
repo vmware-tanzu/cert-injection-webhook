@@ -6,7 +6,7 @@ toolchain go1.24.1
 
 require (
 	github.com/evanphx/json-patch/v5 v5.9.11
-	github.com/pivotal/kpack v0.16.1-0.20250326154701-a947fa9c800d
+	github.com/pivotal/kpack v0.16.1
 	github.com/pkg/errors v0.9.1
 	github.com/sclevine/spec v1.4.0
 	github.com/stretchr/testify v1.10.0
