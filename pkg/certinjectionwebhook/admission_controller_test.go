@@ -964,7 +964,7 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
   },
   {
     "op": "add",
-    "path": "/spec/containers/1/env/1",
+    "path": "/spec/containers/1/env/2",
     "value": {
       "name": "NO_PROXY",
       "value": "http://my.local.com"
@@ -1187,7 +1187,7 @@ func testPodAdmissionController(t *testing.T, when spec.G, it spec.S) {
   },
   {
     "op": "add",
-    "path": "/spec/containers/1/env/1",
+    "path": "/spec/containers/1/env/2",
     "value": {
       "name": "NO_PROXY",
       "value": "http://my.local.com"
