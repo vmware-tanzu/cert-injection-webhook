@@ -4,7 +4,7 @@ go 1.21
 toolchain go1.23.7
 
 require (
-	github.com/evanphx/json-patch/v5 v5.8.1
+	github.com/evanphx/json-patch/v5 v5.9.11
 	github.com/pivotal/kpack v0.10.1
 	github.com/pkg/errors v0.9.1
 	github.com/sclevine/spec v1.4.0
