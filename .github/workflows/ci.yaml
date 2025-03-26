@@ -144,7 +144,7 @@ jobs:
         only: ytt, kapp, imgpkg, kbld
 
     - name: Download bundle lock
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: pre-release-bundle.lock
 
@@ -201,7 +201,7 @@ jobs:
         only: ytt, kbld, imgpkg
 
     - name: Download artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
 
     - name: Docker Login
       uses: ./.github/actions/docker-login
