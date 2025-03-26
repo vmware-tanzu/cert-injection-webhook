@@ -125,9 +125,8 @@ func (ac *admissionController) Admit(ctx context.Context, request *admissionv1.A
 
 	patchBytes, err := ac.mutate(ctx, request)
 	if err != nil {
-		reason := fmt.Sprintf("mutation failed: %v", err)
-		logger.Error(reason)
-		status := webhook.MakeErrorStatus(reason)
+		logger.Error(fmt.Sprintf("mutation failed: %v", err))
+		status := webhook.MakeErrorStatus("mutation failed: %v", err)
 		return status
 	}
 	logger.Infof("Kind: %q PatchBytes: %v", request.Kind, string(patchBytes))
