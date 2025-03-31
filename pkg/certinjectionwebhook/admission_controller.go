@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/pkg/errors"
 	admissionv1 "k8s.io/api/admission/v1"
@@ -61,7 +62,6 @@ func NewAdmissionController(
 	caCertsData string,
 	imagePullSecrets corev1.LocalObjectReference,
 ) (*admissionController, error) {
-
 	if len(labels) == 0 && len(annotations) == 0 {
 		return nil, errors.New("at least one label or annotation required")
 	}
@@ -118,7 +118,7 @@ func (ac *admissionController) Admit(ctx context.Context, request *admissionv1.A
 		return &admissionv1.AdmissionResponse{Allowed: true}
 	}
 
-	if !(intersect(ac.labels, pod.Labels) || intersect(ac.annotations, pod.Annotations)) {
+	if !ac.matches(pod) {
 		logger.Info("does not contain matching labels or annotations, letting it through")
 		return &admissionv1.AdmissionResponse{Allowed: true}
 	}
@@ -261,10 +261,24 @@ func (ac *admissionController) setBuildServicePodDefaults(ctx context.Context, p
 
 var universalDeserializer = serializer.NewCodecFactory(runtime.NewScheme()).UniversalDeserializer()
 
-func intersect(a []string, b map[string]string) bool {
-	for _, k := range a {
-		if _, ok := b[k]; ok {
-			return true
+func (ac *admissionController) matches(pod corev1.Pod) bool {
+	return matchesMetadata(ac.labels, pod.Labels) || matchesMetadata(ac.annotations, pod.Annotations)
+}
+
+func matchesMetadata(matchers []string, metadata map[string]string) bool {
+	for _, matcher := range matchers {
+		key, value, hasValue := strings.Cut(matcher, "=")
+		key = strings.TrimSpace(key)
+		value = strings.TrimSpace(value)
+
+		if hasValue {
+			if metadata[key] == value {
+				return true
+			}
+		} else {
+			if _, ok := metadata[key]; ok {
+				return true
+			}
 		}
 	}
 	return false
