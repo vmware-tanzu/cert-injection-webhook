@@ -38,7 +38,7 @@ jobs:
       run: go test -v ./pkg/...
 
     - name: Report coverage
-      uses: codecov/codecov-action@v5.4.0
+      uses: codecov/codecov-action@v5.4.2
 
   webhook-image:
     runs-on: ubuntu-latest
