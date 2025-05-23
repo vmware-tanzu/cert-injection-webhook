@@ -58,7 +58,7 @@ jobs:
       id: build
       uses: ./.github/actions/pack-build
       with:
-        artifact_name: webhook
+        artifact_name: webhook-image
         pack_version: ${{ env.PACK_VERSION }}
         tag: ${{ env.PUBLIC_IMAGE_DEV_REPO }}/webhook
         bp_go_targets: "./cmd/webhook"
@@ -81,7 +81,7 @@ jobs:
       id: build
       uses: ./.github/actions/pack-build
       with:
-        artifact_name: setup-ca-certs
+        artifact_name: setup-ca-certs-image
         pack_version: ${{ env.PACK_VERSION }}
         tag: ${{ env.PUBLIC_IMAGE_DEV_REPO }}/setup-ca-certs
         bp_go_targets: "./cmd/setup-ca-certs"
@@ -204,6 +204,10 @@ jobs:
 
     - name: Download artifacts
       uses: actions/download-artifact@v4
+      with:
+        pattern: '*-image'
+        path: images
+        merge-multiple: true
 
     - name: Docker Login
       uses: ./.github/actions/docker-login
@@ -225,7 +229,7 @@ jobs:
       id: promote
       run: |
         mkdir -p final-image-refs
-        for image in "webhook" "setup-ca-certs"; do
+        for image in images/*; do
           dev_image=$(cat $image)
           digest=$(echo $dev_image| cut -d "@" -f 2)
 
