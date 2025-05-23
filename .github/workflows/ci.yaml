@@ -51,9 +51,9 @@ jobs:
     - name: Docker Login
       uses: ./.github/actions/docker-login
       with:
-        registry: ${{ env.PUBLIC_IMAGE_DEV_REPO }}
-        username: ${{ secrets.REGISTRY_USER }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build
       id: build
       uses: ./.github/actions/pack-build
@@ -74,9 +74,9 @@ jobs:
     - name: Docker Login
       uses: ./.github/actions/docker-login
       with:
-        registry: ${{ env.PUBLIC_IMAGE_DEV_REPO }}
-        username: ${{ secrets.REGISTRY_USER }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build
       id: build
       uses: ./.github/actions/pack-build
@@ -103,9 +103,9 @@ jobs:
     - name: Docker Login
       uses: ./.github/actions/docker-login
       with:
-        registry: ${{ env.PUBLIC_IMAGE_DEV_REPO }}
-        username: ${{ secrets.REGISTRY_USER }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Setup carvel
       uses: carvel-dev/setup-action@v2
