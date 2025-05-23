@@ -208,9 +208,9 @@ jobs:
     - name: Docker Login
       uses: ./.github/actions/docker-login
       with:
-        registry: ${{ env.PUBLIC_IMAGE_REPO }}
-        username: ${{ secrets.REGISTRY_USER }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Validate release version
       run: |
