@@ -76,7 +76,7 @@ runs:
       cat ${{ inputs.bundle_output }}
 
   - name: Upload Bundle lock
-    uses: actions/upload-artifact@v4
+    uses: actions/upload-artifact@v3
     with:
       name: ${{ inputs.bundle_output }}
       path: ${{ inputs.bundle_output }}
