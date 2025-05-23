@@ -225,7 +225,7 @@ jobs:
       id: promote
       run: |
         mkdir -p final-image-refs
-        for image in images/*; do
+        for image in "webhook" "setup-ca-certs"; do
           dev_image=$(cat $image)
           digest=$(echo $dev_image| cut -d "@" -f 2)
 
