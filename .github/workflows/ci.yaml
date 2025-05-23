@@ -146,7 +146,7 @@ jobs:
         only: ytt, kapp, imgpkg, kbld
 
     - name: Download bundle lock
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v3
       with:
         name: pre-release-bundle.lock
 
@@ -203,7 +203,7 @@ jobs:
         only: ytt, kbld, imgpkg
 
     - name: Download artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v3
 
     - name: Docker Login
       uses: ./.github/actions/docker-login
@@ -225,7 +225,7 @@ jobs:
       id: promote
       run: |
         mkdir -p final-image-refs
-        for image in "webhook" "setup-ca-certs"; do
+        for image in images/*; do
           dev_image=$(cat $image)
           digest=$(echo $dev_image| cut -d "@" -f 2)
 
@@ -240,7 +240,7 @@ jobs:
         done
 
     - name: Upload image refs
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v3
       with:
         name: final-image-refs
         path: final-image-refs/*
@@ -258,7 +258,7 @@ jobs:
         tar -C imgpkg-bundle -cvzf config.tar.gz config
 
     - name: Upload bundle
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v3
       with:
         name: config
         path: config.tar.gz
