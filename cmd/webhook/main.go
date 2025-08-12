@@ -11,8 +11,8 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"strings"
 	"strconv"
+	"strings"
 
 	corev1 "k8s.io/api/core/v1"
 	"knative.dev/pkg/configmap"
