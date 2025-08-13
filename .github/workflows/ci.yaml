@@ -110,7 +110,7 @@ jobs:
     - name: Setup carvel
       uses: carvel-dev/setup-action@v2
       with:
-        token: ${{ secrets.RELEASE_TOKEN }}
+        token: ${{ secrets.GITHUB_TOKEN }}
         only: ytt, kbld, imgpkg
 
     - name: imgpkg push
@@ -142,7 +142,7 @@ jobs:
     - name: Setup carvel
       uses: carvel-dev/setup-action@v2
       with:
-        token: ${{ secrets.RELEASE_TOKEN }}
+        token: ${{ secrets.GITHUB_TOKEN }}
         only: ytt, kapp, imgpkg, kbld
 
     - name: Download bundle lock
@@ -199,7 +199,7 @@ jobs:
     - name: Setup carvel
       uses: carvel-dev/setup-action@v2
       with:
-        token: ${{ secrets.RELEASE_TOKEN }}
+        token: ${{ secrets.GITHUB_TOKEN }}
         only: ytt, kbld, imgpkg
 
     - name: Download artifacts
