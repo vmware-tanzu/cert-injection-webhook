@@ -8,11 +8,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-
 	"github.com/pkg/errors"
 	admissionv1 "k8s.io/api/admission/v1"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
@@ -20,6 +20,7 @@ import (
 	"knative.dev/pkg/apis/duck"
 	"knative.dev/pkg/logging"
 	"knative.dev/pkg/webhook"
+	"os"
 
 	"github.com/vmware-tanzu/cert-injection-webhook/pkg/certs"
 )
@@ -186,6 +187,18 @@ func (ac *admissionController) SetEnvVars(ctx context.Context, obj *corev1.Pod) 
 	}
 }
 
+func ParseResource(envVar string) (resource.Quantity, error) {
+	value, found := os.LookupEnv(envVar)
+	if !found {
+		return resource.Quantity{}, nil // Return an empty Quantity if env var is missing
+	}
+	qty, err := resource.ParseQuantity(value)
+	if err != nil {
+		return resource.Quantity{}, fmt.Errorf("failed to parse %s: %w", envVar, err)
+	}
+	return qty, nil
+}
+
 func (ac *admissionController) SetCaCerts(ctx context.Context, obj *corev1.Pod) {
 	if ac.caCertsData == "" {
 		return
@@ -223,6 +236,44 @@ func (ac *admissionController) SetCaCerts(ctx context.Context, obj *corev1.Pod) 
 		})
 	}
 
+	var resources corev1.ResourceRequirements
+
+	if cpuRequest, err := ParseResource("INIT_CONTAINER_CPU_REQUEST"); err == nil {
+		if resources.Requests == nil {
+			resources.Requests = corev1.ResourceList{}
+		}
+		resources.Requests[corev1.ResourceCPU] = cpuRequest
+	} else {
+		fmt.Printf("Warning: %v\n", err)
+	}
+
+	if memoryRequest, err := ParseResource("INIT_CONTAINER_MEMORY_REQUEST"); err == nil {
+		if resources.Requests == nil {
+			resources.Requests = corev1.ResourceList{}
+		}
+		resources.Requests[corev1.ResourceMemory] = memoryRequest
+	} else {
+		fmt.Printf("Warning: %v\n", err)
+	}
+
+	if cpuLimit, err := ParseResource("INIT_CONTAINER_CPU_LIMIT"); err == nil {
+		if resources.Limits == nil {
+			resources.Limits = corev1.ResourceList{}
+		}
+		resources.Limits[corev1.ResourceCPU] = cpuLimit
+	} else {
+		fmt.Printf("Warning: %v\n", err)
+	}
+
+	if memoryLimit, err := ParseResource("INIT_CONTAINER_MEMORY_LIMIT"); err == nil {
+		if resources.Limits == nil {
+			resources.Limits = corev1.ResourceList{}
+		}
+		resources.Limits[corev1.ResourceMemory] = memoryLimit
+	} else {
+		fmt.Printf("Warning: %v\n", err)
+	}
+
 	container := corev1.Container{
 		Name:            "setup-ca-certs",
 		Image:           ac.setupCACertsImage,
@@ -243,6 +294,11 @@ func (ac *admissionController) SetCaCerts(ctx context.Context, obj *corev1.Pod) 
 			Capabilities:             &corev1.Capabilities{Drop: []corev1.Capability{"ALL"}},
 		},
 	}
+
+	if len(resources.Requests) > 0 || len(resources.Limits) > 0 {
+		container.Resources = resources
+	}
+
 	obj.Spec.InitContainers = append([]corev1.Container{container}, obj.Spec.InitContainers...)
 }
 
